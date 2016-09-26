@@ -4,6 +4,7 @@ source("00_Global/settings.R")
 # Downloading the files
 downloadFiles <- function(){
   download.file("https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip", "data.zip")
+  if(!file.exists("RawData")) dir.create("RawData")
   unzip("data.zip", exdir = "RawData")
   file.remove("data.zip")
 }
