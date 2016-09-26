@@ -1,0 +1,52 @@
+---
+title: "Untitled"
+author: "Joris Van den Bossche"
+date: "26 september 2016"
+output: html_document:
+    keep_md: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+```
+
+# Global options and libraries used are found in the Global folder:
+```{r}
+source("00_Global/libraries.R")
+source("00_Global/settings.R")
+```
+
+
+# Reading in data
+Functions are defined in this folder for downloading, sampling and loading the data into R.
+```{r}
+source("01_Load/load.R")
+```
+
+## Usage
+Downloading the data:
+```{r}
+if(!file.exists("RawData/final")){
+  downloadFiles()
+}
+```
+
+To load a sample of the files into R, this function was created:
+```{r}
+readTextsSample(lines = 10, lang = "en_US")
+```
+
+
+Creating a subfolder "sample" in the "RawData" folder. This may take a few minutes
+```{r}
+createSampleDataDir(usePercentageOfData, seed, lang = "en_US")
+```
+
+Reading the sample data into a corpus is done using this function:
+```{r}
+if(!exists("corpus") || !exists("tdm"))
+  createCorpus(lang = "en_US")
+```
+
