@@ -11,15 +11,15 @@ downloadFiles <- function(){
 
 # Loading the files into R
 readTextsSample <- function(lines = 10, lang = "en_US"){
-  con <- file(paste0("RawData/final/", lang, "/", lang, ".blogs.txt", "r"))
+  con <- file(paste0("RawData/final/", lang, "/", lang, ".blogs.txt"), "r")
   blogTexts <<- readLines(con, lines)
   close(con)
   
-  con <- file(paste0("RawData/final/", lang, "/", lang, ".news.txt", "r"))
+  con <- file(paste0("RawData/final/", lang, "/", lang, ".news.txt"), "r")
   newsTexts <<- readLines(con, lines)
   close(con)
   
-  con <- file(paste0("RawData/final/", lang, "/", lang, ".twitter.txt", "r"))
+  con <- file(paste0("RawData/final/", lang, "/", lang, ".twitter.txt"), "r")
   twitterTexts <<- readLines(con, lines)
   close(con)
 }
@@ -65,7 +65,7 @@ createSampleDataDir <- function(sampleSize = 1, seed = 1, lang = "en_US"){
   return("Sample dir created.")
 }
 
-# Creating a Corpus
+# Creating a Corpus and term-document matrix
 # Tutorial: https://rstudio-pubs-static.s3.amazonaws.com/31867_8236987cf0a8444e962ccd2aec46d9c3.html#loading-texts
 # The function takes the data from the folder "RawData/sample" if it exists (and disregard the lang variable). Otherwise it will take directly from the raw data in "RawData/final/en_US/"
 createCorpus <- function(lang = "en_US"){
@@ -81,17 +81,17 @@ createCorpus <- function(lang = "en_US"){
   ## Removing numbers
   corpus <- tm_map(corpus, removeNumbers)
   ## Removing stopwords
-  corpus <- tm_map(corpus, removeWords, stopwords("english"))
+  # corpus <- tm_map(corpus, removeWords, stopwords("english"))
   ## Removing common word endings
-  corpus <- tm_map(corpus, stemDocument)
+  # corpus <- tm_map(corpus, stemDocument)
   ## Removing white space
   corpus <- tm_map(corpus, stripWhitespace)
   
   ## Make the corpus a text document
   corpus <- tm_map(corpus, PlainTextDocument) 
   
-  ## Construct a term-document Matrix
-  print("Constructing the term-document Matrix.")
+  ## Construct a term-document matrix
+  print("Constructing the term-document matrix.")
   tdm <<- TermDocumentMatrix(corpus)
   
   "Done!"

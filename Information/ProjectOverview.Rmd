@@ -1,18 +1,21 @@
 ---
-title: "Untitled"
+title: "Data science coursera track final project"
 author: "Joris Van den Bossche"
 date: "26 september 2016"
-output: html_document:
+output: 
+  html_document:
     keep_md: true
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(message = FALSE)
 knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_knit$set(root.dir = normalizePath('../'))
 ```
 
-# Global options and libraries used are found in the Global folder:
+# Global options
+global options and the libraries used are found in the Global folder:
 ```{r}
 source("00_Global/libraries.R")
 source("00_Global/settings.R")
@@ -34,19 +37,20 @@ if(!file.exists("RawData/final")){
 ```
 
 To load a sample of the files into R, this function was created:
-```{r}
-readTextsSample(lines = 10, lang = "en_US")
+```{r readsample}
+readTextsSample(lines = 2, lang = "en_US")
+twitterTexts
 ```
 
-
-Creating a subfolder "sample" in the "RawData" folder. This may take a few minutes
-```{r}
+Creating a subfolder "sample" in the "RawData" folder. This may take a few minutes.
+```{r createSample, eval = FALSE}
 createSampleDataDir(usePercentageOfData, seed, lang = "en_US")
 ```
 
 Reading the sample data into a corpus is done using this function:
-```{r}
+```{r createCorpus, cache = TRUE, results = 'hide'}
 if(!exists("corpus") || !exists("tdm"))
-  createCorpus(lang = "en_US")
+  corpus <- createCorpus(lang = "en_US")
 ```
 
+# Exploratory Analysis
