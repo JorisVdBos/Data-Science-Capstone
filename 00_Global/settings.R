@@ -4,4 +4,4 @@
 seed <- 10
 
 # Reading data
-usePercentageOfData <- 0.01
+usePercentageOfData <- 0.001

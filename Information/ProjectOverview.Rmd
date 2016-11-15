@@ -50,7 +50,7 @@ createSampleDataDir(usePercentageOfData, seed, lang = "en_US")
 Reading the sample data into a corpus is done using this function:
 ```{r createCorpus, cache = TRUE, results = 'hide'}
 if(!exists("corpus") || !exists("tdm"))
-  corpus <- createCorpus(lang = "en_US")
+  createCorpus(lang = "en_US")
 ```
 
 # Exploratory Analysis

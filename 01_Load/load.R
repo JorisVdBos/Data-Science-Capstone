@@ -12,15 +12,15 @@ downloadFiles <- function(){
 # Loading the files into R
 readTextsSample <- function(lines = 10, lang = "en_US"){
   con <- file(paste0("RawData/final/", lang, "/", lang, ".blogs.txt"), "r")
-  blogTexts <<- readLines(con, lines)
+  blogTexts <<- readLines(con, lines, encoding="UTF-8")
   close(con)
   
   con <- file(paste0("RawData/final/", lang, "/", lang, ".news.txt"), "r")
-  newsTexts <<- readLines(con, lines)
+  newsTexts <<- readLines(con, lines, encoding="UTF-8")
   close(con)
   
   con <- file(paste0("RawData/final/", lang, "/", lang, ".twitter.txt"), "r")
-  twitterTexts <<- readLines(con, lines)
+  twitterTexts <<- readLines(con, lines, encoding="UTF-8")
   close(con)
 }
 
@@ -39,10 +39,10 @@ createSampleDataDir <- function(sampleSize = 1, seed = 1, lang = "en_US"){
   for(file in paste0(lang, c(".blogs.txt", ".news.txt", ".twitter.txt"))){
     # Calculate which lines to read
     con <- file(paste0("RawData/final/", lang, "/", file), "r")
-    fileLength <- length(readLines(con))
+    fileLength <- length(readLines(con, encoding="UTF-8"))
     close(con)
-    readLines <- sample(fileLength, floor(fileLength*sampleSize), replace = FALSE)
-    readLines <- readLines[order(readLines)]
+    linesToRead <- sample(fileLength, floor(fileLength*sampleSize), replace = FALSE)
+    linesToRead <- linesToRead[order(linesToRead)]
     
     # Create the new text file
     file.create(paste0("RawData/sample/", file))
@@ -54,8 +54,8 @@ createSampleDataDir <- function(sampleSize = 1, seed = 1, lang = "en_US"){
     pb <- txtProgressBar(style = 3)
     for(i in 1:fileLength){
       setTxtProgressBar(pb, i/fileLength)
-      line <- readLines(conR, 1)
-      if(i %in% readLines) writeLines(line, conW)
+      line <- readLines(conR, 1, encoding="UTF-8")
+      if(i %in% linesToRead) writeLines(line, conW)
     }
     close(pb)
     close(conR)
@@ -74,25 +74,30 @@ createCorpus <- function(lang = "en_US"){
   if(file.exists("RawData/sample"))
     corpus <<- Corpus(DirSource("RawData/sample")) else
       corpus <<- Corpus(DirSource("RawData/final/", lang, "/"))
-  ## removing punctuations
-  corpus <- tm_map(corpus, removePunctuation)
-  ## Converting all to lowercase
-  corpus <- tm_map(corpus, tolower)
   ## Removing numbers
-  corpus <- tm_map(corpus, removeNumbers)
-  ## Removing stopwords
-  # corpus <- tm_map(corpus, removeWords, stopwords("english"))
-  ## Removing common word endings
-  # corpus <- tm_map(corpus, stemDocument)
-  ## Removing white space
-  corpus <- tm_map(corpus, stripWhitespace)
+  corpus <<- tm_map(corpus, removeNumbers)
+  ## Punctuations: Dots will be the next line. Comma's can be interperted as a word
+    corpus <<- tm_map(corpus, content_transformer(gsub), pattern = "\\. *", replacement = "\n")
+    removePunctuationsExeptions <- function(x) {
+      x <- gsub(",+", "123", x)
+      x <- gsub("'+", "456", x)
+      x <- gsub("[[:punct:]]+", "", x)
+      x <- gsub(" *123 *", " , ", x)
+      x <- gsub(" *456 *", "'", x)
+      x
+    }
+    corpus <<- tm_map(corpus, content_transformer(removePunctuationsExeptions))
+  ## Converting all to lowercase
+  corpus <<- tm_map(corpus, tolower)
   
   ## Make the corpus a text document
-  corpus <- tm_map(corpus, PlainTextDocument) 
+  corpus <<- tm_map(corpus, PlainTextDocument) 
   
   ## Construct a term-document matrix
   print("Constructing the term-document matrix.")
   tdm <<- TermDocumentMatrix(corpus)
   
-  "Done!"
+  print("Done!")
+  
+  return(TRUE)
 }
