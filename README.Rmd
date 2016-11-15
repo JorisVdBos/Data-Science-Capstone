@@ -9,4 +9,6 @@ The contents of the in this supository are ordered in these maps:
 - Information: Here you will find detailed information on how I completed the project. You will see I have tried to construct all steps taken into functions, so it would be easy to read. For detailed information about the working of a function you can delve into the R scripts themselves.
 - 00 Global: Here some default scripts are saved. The library file containes all the R libraries that are used throughout the coding in the project. In the settings script, I have gathered all the variables that can be tweaked throughout the project. That way you may change them and run the whole project again.
 - 01 Load: Contains the scripst of handling the raw data such as downloading, sampling, loading into R and also the cleaning of the data.
-- 02 Exploratory Analaysis: 
+- 02 Exploratory Analaysis: Addresses questions regarding word freqency, n-grams of length 2 and 3.
+
+Thanks for reading! - Joris Van den Bossche

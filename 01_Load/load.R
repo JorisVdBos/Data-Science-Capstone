@@ -77,7 +77,7 @@ createCorpus <- function(lang = "en_US"){
   ## Removing numbers
   corpus <<- tm_map(corpus, removeNumbers)
   ## Punctuations: Dots will be the next line. Comma's can be interperted as a word
-    corpus <<- tm_map(corpus, content_transformer(gsub), pattern = "\\. *", replacement = "\n")
+  corpus <<- tm_map(corpus, content_transformer(gsub), pattern = "\\. *", replacement = "\n")
     removePunctuationsExeptions <- function(x) {
       x <- gsub(",+", "123", x)
       x <- gsub("'+", "456", x)
@@ -86,7 +86,12 @@ createCorpus <- function(lang = "en_US"){
       x <- gsub(" *456 *", "'", x)
       x
     }
-    corpus <<- tm_map(corpus, content_transformer(removePunctuationsExeptions))
+  corpus <<- tm_map(corpus, content_transformer(removePunctuationsExeptions))
+    
+  ## Removing double \n and \n at the beginning and end and putting it between spaces
+  corpus <<- tm_map(corpus, content_transformer(gsub), pattern = " *[\n]+ *", replacement = " \n ")
+  corpus <<- tm_map(corpus, content_transformer(gsub), pattern = "^( \n) | (\n )$", replacement = " ")
+  
   ## Converting all to lowercase
   corpus <<- tm_map(corpus, tolower)
   
