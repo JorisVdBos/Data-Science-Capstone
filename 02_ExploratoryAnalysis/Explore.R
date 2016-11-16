@@ -10,13 +10,16 @@
 
 source("01_Load/load.R")
 if(!exists("corpus"))
-  createCorpus()
+  corpus <- createCorpus()
+if(!exists("tdm"))
+  tdm <- TermDocumentMatrix(corpus, control = list(wordLengths=c(0, Inf)))
 
 # Create table with word freqencies
 wordFreq <- function(tdm){
   capture.output(FreqMat <- data.frame(word = rownames(inspect(tdm)), freq = rowSums(inspect(tdm))), file='NUL')
   row.names(FreqMat) <- NULL
   FreqMat <-  data.table(FreqMat)
+  FreqMat$word <- as.character(FreqMat$word)
   FreqMat[order(-freq)]
 }
 

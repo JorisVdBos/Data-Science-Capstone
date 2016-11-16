@@ -72,37 +72,37 @@ createCorpus <- function(lang = "en_US"){
   print("Creating Corpus object.")
   
   if(file.exists("RawData/sample"))
-    corpus <<- Corpus(DirSource("RawData/sample")) else
-      corpus <<- Corpus(DirSource("RawData/final/", lang, "/"))
+    dirSource <- DirSource("RawData/sample") else
+      dirSource <- DirSource("RawData/final/", lang, "/")
+  
+  dirSource$encoding <- "UTF-8"
+  corpus <- Corpus(dirSource)
+    
   ## Removing numbers
-  corpus <<- tm_map(corpus, removeNumbers)
+  corpus <- tm_map(corpus, removeNumbers)
   ## Punctuations: Dots will be the next line. Comma's can be interperted as a word
-  corpus <<- tm_map(corpus, content_transformer(gsub), pattern = "\\. *", replacement = "\n")
-    removePunctuationsExeptions <- function(x) {
-      x <- gsub(",+", "123", x)
-      x <- gsub("'+", "456", x)
-      x <- gsub("[[:punct:]]+", "", x)
-      x <- gsub(" *123 *", " , ", x)
-      x <- gsub(" *456 *", "'", x)
-      x
-    }
-  corpus <<- tm_map(corpus, content_transformer(removePunctuationsExeptions))
+  corpus <- tm_map(corpus, content_transformer(gsub), pattern = "\\. *", replacement = "\n")
+  removePunctuationsExeptions <- function(x) {
+    x <- gsub(",+", "123", x)
+    x <- gsub("'+", "456", x)
+    x <- gsub("[[:punct:]]+", "", x)
+    x <- gsub(" *123 *", " , ", x)
+    x <- gsub(" *456 *", "'", x)
+    x
+  }
+  corpus <- tm_map(corpus, content_transformer(removePunctuationsExeptions))
     
   ## Removing double \n and \n at the beginning and end and putting it between spaces
-  corpus <<- tm_map(corpus, content_transformer(gsub), pattern = " *[\n]+ *", replacement = " \n ")
-  corpus <<- tm_map(corpus, content_transformer(gsub), pattern = "^( \n) | (\n )$", replacement = " ")
+  corpus <- tm_map(corpus, content_transformer(gsub), pattern = " *[\n]+ *", replacement = " \n ")
+  corpus <- tm_map(corpus, content_transformer(gsub), pattern = "^( \n) | (\n )$", replacement = " ")
   
   ## Converting all to lowercase
-  corpus <<- tm_map(corpus, tolower)
+  corpus <- tm_map(corpus, tolower)
   
   ## Make the corpus a text document
-  corpus <<- tm_map(corpus, PlainTextDocument) 
-  
-  ## Construct a term-document matrix
-  print("Constructing the term-document matrix.")
-  tdm <<- TermDocumentMatrix(corpus)
+  corpus <- tm_map(corpus, PlainTextDocument) 
   
   print("Done!")
   
-  return(TRUE)
+  corpus
 }
