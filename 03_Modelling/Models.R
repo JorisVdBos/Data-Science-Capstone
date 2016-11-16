@@ -29,33 +29,33 @@ predict.FreqModel <- function(model, word1 = NULL, word2 = NULL){
     word1 <- "/n"
   }
   
-  # Finding input
-  wordFreq <- model$wordFreqTable
-  n2gramsTable <- model$n2gramsTable
-  n3gramsTable <- model$n3gramsTable
+  # Finding input word indices
+  if(word1 == "/n") inputWord1Index <- 0 else
+    inputWord1Index <- which(model$wordFreqTable$word == word1)
+  if(word2 == "/n") inputWord2Index <- 0 else
+    inputWord2Index <- which(model$wordFreqTable$word == word2)
   
   # Find solutions in the 3-grams table
-  sol3gram <- grep(paste0("^", word1, " ", word2, " "), n3gramsTable$ngrams)[1:3]
+  solutions <- model$n3gramsTable[indexWord1 == inputWord1Index & indexWord2 == inputWord2Index]
+  # Take the first three solutions
+  solutions <- data.table(value = solutions$indexWord3[1:3])
   
-  solutions <- data.frame(value = n3gramsTable[sol3gram]$ngrams)
-  solutions$value <- strip(solutions$value)
   solutions$source <- rep("n3gramsTable", 3)
   
-  # Find more solutions in the 2-grams table
-  findMore <- sum(is.na(sol3gram))
-  
+  # Find more solutions in the 2-grams table if necessairy
+  findMore <- sum(is.na(solutions$value))
   if(findMore > 0){
-    sol2gram <- grep(paste0("^", word2, " "), n2gramsTable$ngrams)
+    sol2gram <- model$n2gramsTable[indexWord1 == inputWord2Index]$indexWord2
     
     for(i in 1:findMore){
-      sol <- n2gramsTable[sol2gram]$ngrams[i]
-      sol <- strip(sol)
+      i <- as.numeric(i)
+      sol <- sol2gram[i]
       
       # Check if the found solutions has allready been found in the 3-gram before
       k <- i
       while(sol %in% solutions$value){
         k <- k + 1
-        sol <- n2gramsTable[sol2gram]$ngrams[k]
+        sol <- model$n2gramsTable[sol2gram,]$indexWord2[k]
         sol <- strip(sol)
         if(is.na(sol)) break
       }
@@ -66,29 +66,30 @@ predict.FreqModel <- function(model, word1 = NULL, word2 = NULL){
     }
   }
   
-  # Find more solutions in the freqency table
+  # Find more solutions in the freqency table if necessairy
   findMore <- sum(is.na(solutions$value))
-  
   if(findMore > 0){
     
     for(i in 1:findMore){
-      sol <- wordFreq$word[i]
-      sol <- strip(sol)
-      
       # Check if the found solutions has allready been found in the 3-gram before
-      k <- i
-      while(sol %in% solutions$value){
+      k <- as.numeric(i)
+      while(k %in% solutions$value){
         k <- k + 1
-        sol <- wordFreq$word[k]
-        sol <- strip(sol)
-        if(is.na(sol)) break
       }
       
-      # Add 2gram solution to solutions vector
-      solutions$value[3 - findMore + i] <- sol
+      # Add solution to solutions vector
+      solutions$value[3 - findMore + i] <- k
       solutions$source[3 - findMore + i] <- "wordFreqencyTable"
     }
   }
+  
+  solutions$value <- as.numeric(solutions$value)
+  # Replace indices by words
+  getWord <- function(index){
+    if(index == 0) return("\n") else
+      return(model$wordFreqTable[index, "word", with = FALSE]$word)
+  }
+  solutions[, value := sapply(solutions$value, function(x) getWord(x))]
   
   # Return solutions vector
   solutions
@@ -102,11 +103,9 @@ createFreqModel <- function(corpus, tdm) {
   n2grams <- ngramsFromCorpus(corpus, n = 2)
   n2gramsTable <- data.table(get.phrasetable(n2grams))
   n2gramsTable[, ngrams := gsub(" $", "", ngrams)]
-  n2gramsTable <- n2gramsTable[order(-freq)]
   n3grams <- ngramsFromCorpus(corpus, n = 3)
   n3gramsTable <- data.table(get.phrasetable(n3grams))
   n3gramsTable[, ngrams := gsub(" $", "", ngrams)]
-  n3gramsTable <- n3gramsTable[order(-freq)]
   
   # Converting the words to numbers
   wordFreqTable[, index := 1:length(wordFreqTable$word)]
@@ -142,8 +141,11 @@ createFreqModel <- function(corpus, tdm) {
   setnames(n3gramsTable, "index", "indexWord3")
   
   # Reduce size by dropping all columns except the Index
+  wordFreqTable <- wordFreqTable[order(-freq)]
   wordFreqTable <- wordFreqTable[,"word", with = FALSE]
+  n2gramsTable <- n2gramsTable[order(-freq)]
   n2gramsTable <- n2gramsTable[,c("indexWord1", "indexWord2"), with = FALSE]
+  n3gramsTable <- n3gramsTable[order(-freq)]
   n3gramsTable <- n3gramsTable[,c("indexWord1", "indexWord2", "indexWord3"), with = FALSE]
   
   # Output

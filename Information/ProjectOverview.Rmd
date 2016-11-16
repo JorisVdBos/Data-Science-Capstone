@@ -37,7 +37,7 @@ if(!file.exists("RawData/final")){
 }
 ```
 
-To load a sample of the files into R, this function was created:
+To load a sample of the files into R, function "readTextsSample" was created:
 ```{r readSample}
 readTextsSample(lines = 2, lang = "en_US")
 twitterTexts
@@ -48,10 +48,10 @@ Creating a subfolder "sample" in the "RawData" folder. This may take a few minut
 createSampleDataDir(usePercentageOfData, seed, lang = "en_US")
 ```
 
-Reading the sample data into a corpus is done using this function:
+Reading the sample data into a corpus is done using function "createCorpus":
 ```{r createCorpus, cache = TRUE, results = 'hide'}
-if(!exists("corpus") || !exists("tdm"))
-  createCorpus(lang = "en_US")
+corpus <- createCorpus(lang = "en_US")
+tdm <- TermDocumentMatrix(corpus, control = list(wordLengths=c(0, Inf)))
 ```
 
 # Exploratory Analysis
@@ -63,13 +63,14 @@ Constructing a word freqency table from a term document matrix:
 ```{r wordFreq}
 wordFreqTable <- wordFreq(tdm)
 wordFreqTable[1:10, ] # The 10 most frequent words
+wordFreqTable # The 10 most frequent words
 ```
 
 Most words only appear once. The frequency is distributed as such:
 ```{r wordDensity}
 density <- wordFreqTable[, .(count = .N), by = freq]
 density[, density := count /sum(density$count)]
-density[order(-density)][density > 0.005]
+density[order(-density)][1:10] # The 10 most frequent word frequencies
 ```
 
 Creating the table of n-grams of length 2:
@@ -77,7 +78,7 @@ Creating the table of n-grams of length 2:
 n2grams <- ngramsFromCorpus(corpus, n = 2)
 n2gramsTable <- data.table(get.phrasetable(n2grams))
 n2gramsTable[, density := freq / sum(n2gramsTable$freq)]
-n2gramsTable[order(-density)][density > 0.002]
+n2gramsTable[order(-density)][1:10] # The 10 most frequent 2-grams
 ```
 
 A histogram of the freqency of the ngrams of length 2:
@@ -94,7 +95,7 @@ As expected, most n-grams are quite rare. The same for the n-grams of length 3:
 n3grams <- ngramsFromCorpus(corpus, n = 3)
 n3gramsTable <- data.table(get.phrasetable(n3grams))
 n3gramsTable[, density := freq / sum(n3gramsTable$freq)]
-n3gramsTable[order(-density)][density > 0.002]
+n3gramsTable[order(-density)][1:10] # The 10 most frequent 3-grams
 ```
 
 A histogram of the freqency of the ngrams of length 3:
@@ -111,10 +112,10 @@ source("03_Modelling/Models.R")
 This first model looks at the freqency table of the 3-grams and takes the three options that are most frequent. If less than three options are found, it will look at the 2-grams table. If still no options are found, it will look at the most freqent words.
 ```{r model1Examples}
 freqModel <- createFreqModel(corpus, tdm)
-predict(freqModel, "then", "you")
-predict(freqModel, "sometimes", "you")
-predict(freqModel, "xnjiqqfqsf", "you")
-predict(freqModel, "xnjiqqfqsf", "nqnjndjiqpdns")
+print(predict(freqModel, "then", "you"))
+print(predict(freqModel, "sometimes", "you"))
+print(predict(freqModel, "xnjiqqfqsf", "you"))
+print(predict(freqModel, "xnjiqqfqsf", "nqnjndjiqpdns"))
 ```
 
 To save space, the words will be stored as numbers, according to their rank in the freqency table
