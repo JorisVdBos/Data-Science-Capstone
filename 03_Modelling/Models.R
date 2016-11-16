@@ -15,7 +15,13 @@ strip <- function(x){
 }
 
 # This first model looks at the freqency table of the 3-grams and takes the three options that are most frequent. If less than three options are found, it will look at the 2-grams table
-freqModel <- function(wordFreq, n2gramsTable, n3gramsTable, word1, word2){
+predict.FreqModel <- function(model, word1, word2){
+  
+  # Finding input
+  wordFreq <- model$wordFreqTable
+  n2gramsTable <- model$n2gramsTable
+  n3gramsTable <- model$n3gramsTable
+  
   # Find solutions in the 3-grams table
   sol3gram <- grep(paste0("^", word1, " ", word2, " "), n3gramsTable$ngrams)[1:3]
   
@@ -74,4 +80,30 @@ freqModel <- function(wordFreq, n2gramsTable, n3gramsTable, word1, word2){
   
   # Return solutions vector
   solutions
+}
+
+# Create a model object
+createFreqModel <- function(corpus, tdm) {
+  # Create tables
+  wordFreqTable <- wordFreq(tdm)
+  n2grams <- ngramsFromCorpus(corpus, n = 2)
+  n2gramsTable <- data.table(get.phrasetable(n2grams))
+  n3grams <- ngramsFromCorpus(corpus, n = 3)
+  n3gramsTable <- data.table(get.phrasetable(n3grams))
+  
+  # Reduce size by dropping all columns except the named
+  wordFreqTable <- wordFreqTable[order(-freq)]
+  wordFreqTable <- wordFreqTable[,"word", with = FALSE]
+  n2gramsTable <- n2gramsTable[order(-freq)]
+  n2gramsTable <- n2gramsTable[,"ngrams", with = FALSE]
+  n3gramsTable <- n3gramsTable[order(-freq)]
+  n3gramsTable <- n3gramsTable[,"ngrams", with = FALSE]
+  
+  # Output
+  output <- list(wordFreqTable = wordFreqTable, 
+                 n2gramsTable = n2gramsTable, 
+                 n3gramsTable = n3gramsTable)
+  class(output) <- append(class(output),"FreqModel")
+  
+  output
 }

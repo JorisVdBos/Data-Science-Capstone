@@ -11,7 +11,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(message = FALSE)
 knitr::opts_chunk$set(warning = FALSE)
-knitr::opts_chunk$set(cache = TRUE)
+knitr::opts_chunk$set(cache = FALSE)
 knitr::opts_knit$set(root.dir = normalizePath('../'))
 ```
 
@@ -25,7 +25,7 @@ source("00_Global/settings.R")
 
 # Reading in data
 Functions are defined in this folder for downloading, sampling and loading the data into R.
-```{r sourceLoad}
+```{r sourceLoad, cache = FALSE}
 source("01_Load/load.R")
 ```
 
@@ -56,18 +56,18 @@ if(!exists("corpus") || !exists("tdm"))
 
 # Exploratory Analysis
 ```{r sourceExplAnalysis}
-source("02_ExploratoryAnalysis/Explore.r")
+source("02_ExploratoryAnalysis/Explore.R")
 ```
 
 Constructing a word freqency table from a term document matrix:
 ```{r wordFreq}
-wordFreq <- wordFreq(tdm)
-wordFreq[1:10, ] # The 10 most frequent words
+wordFreqTable <- wordFreq(tdm)
+wordFreqTable[1:10, ] # The 10 most frequent words
 ```
 
 Most words only appear once. The frequency is distributed as such:
 ```{r wordDensity}
-density <- wordFreq[, .(count = .N), by = freq]
+density <- wordFreqTable[, .(count = .N), by = freq]
 density[, density := count /sum(density$count)]
 density[order(-density)][density > 0.005]
 ```
@@ -76,29 +76,30 @@ Creating the table of n-grams of length 2:
 ```{r ngram2}
 n2grams <- ngramsFromCorpus(corpus, n = 2)
 n2gramsTable <- data.table(get.phrasetable(n2grams))
-n2gramsTable <- n2gramsTable[freq > 1] #This will filter out the n-grams that were unique 
 n2gramsTable[, density := freq / sum(n2gramsTable$freq)]
 n2gramsTable[order(-density)][density > 0.002]
 ```
 
 A histogram of the freqency of the ngrams of length 2:
 ```{r ngram2hist}
-ggplot(data= table) + 
+ggplot(data= n2gramsTable) + 
   geom_freqpoly(aes(freq))
+```
+```{r}
+
 ```
 
 As expected, most n-grams are quite rare. The same for the n-grams of length 3:
 ```{r ngram3}
 n3grams <- ngramsFromCorpus(corpus, n = 3)
 n3gramsTable <- data.table(get.phrasetable(n3grams))
-n3gramsTable <- n3gramsTable[freq > 1] #This will filter out the n-grams that were unique 
 n3gramsTable[, density := freq / sum(n3gramsTable$freq)]
 n3gramsTable[order(-density)][density > 0.002]
 ```
 
 A histogram of the freqency of the ngrams of length 3:
 ```{r ngram3hist}
-ggplot(data= table) + 
+ggplot(data= n3gramsTable) + 
   geom_freqpoly(aes(freq))
 ```
 
@@ -109,9 +110,15 @@ source("03_Modelling/Models.R")
 
 This first model looks at the freqency table of the 3-grams and takes the three options that are most frequent. If less than three options are found, it will look at the 2-grams table. If still no options are found, it will look at the most freqent words.
 ```{r model1Examples}
-freqModel(wordFreq, n2gramsTable, n3gramsTable, "then", "you")
-freqModel(wordFreq, n2gramsTable, n3gramsTable, "sometimes", "you")
-freqModel(wordFreq, n2gramsTable, n3gramsTable, "xnjiqqfqsf", "you")
-freqModel(wordFreq, n2gramsTable, n3gramsTable, "xnjiqqfqsf", "nqnjndjiqpdns")
+freqModel <- createFreqModel(corpus, tdm)
+predict(freqModel, "then", "you")
+predict(freqModel, "sometimes", "you")
+predict(freqModel, "xnjiqqfqsf", "you")
+predict(freqModel, "xnjiqqfqsf", "nqnjndjiqpdns")
+```
+
+To save space, the words will be stored as numbers, according to their rank in the freqency table
+```{r showModel}
+freqModel
 ```
 
