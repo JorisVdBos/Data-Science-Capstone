@@ -123,3 +123,9 @@ To save space, the words will be stored as numbers, according to their rank in t
 freqModel
 ```
 
+The size of the model:
+```{r}
+object.size(freqModel)
+object.size(freqModel)*10^-6 # In megabytes
+```
+
