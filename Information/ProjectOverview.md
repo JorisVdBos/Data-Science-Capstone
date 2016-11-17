@@ -32,26 +32,6 @@ This function downloads the files from the internet, if they are not yet present
 downloadFiles()
 ```
 
-This function loads a sample of the data into R. It creates three
-
-```r
-readTextsSample(lines = 2, lang = "en_US")
-```
-
-```
-## $blogTexts
-## [1] "In the years thereafter, most of the Oil fields and platforms were named after pagan gods."
-## [2] "We love you Mr. Brown."                                                                      
-## 
-## $newsTexts
-## [1] "He wasn't home alone, apparently."                                                                                                                        
-## [2] "The St. Louis plant had to close. It would die of old age. Workers had been making cars there since the onset of mass automotive production in the 1920s."
-## 
-## $twitterTexts
-## [1] "How are you? Btw thanks for the RT. You gonna be in DC anytime soon? Love to see you. Been way, way too long."  
-## [2] "When you meet someone special... you'll know. Your heart will beat more rapidly and you'll smile for no reason."
-```
-
 Because reading in all the data takes way too long, this function takes a fraction and puts it into a sample folder, sampleTrain. The leftover data is also copied, into two more folders: sampleTest and sampleValidate. These data sets are completely randomly chosen (hence the seed) and the maximum size is the amount of lines of the training fata.
 
 ```r
@@ -72,6 +52,44 @@ These functions are found in this folder:
 ```r
 source("02_ExploratoryAnalysis/Explore.R")
 ```
+
+This function loads a random sample of the lines of data into R from the three sources.
+
+```r
+readTextsSample(lines = 2, seed = 104)
+```
+
+```
+## $en_US.blogs.txt
+## [1] "As a teenager, Eri develops the callingan internal link to the man-eating beasts plaguing the planet. She finds herself repeatedly drawn beyond the safety borders, driven by rage, hoping to satiate the bloodlust flooding her veins."
+## [2] "What if Ive been blue,"                                                                                                                                                                                                                 
+## 
+## $en_US.news.txt
+## [1] "\"I think everybody pulled together, and we really fought hard,\" Quentin Richardson said. \"We were down, and J-Rich made two unbelievable shots. The whole night, we had to fight.\""
+## [2] "Some markets, he said, like Texas, Northern California and Washington, D.C., have already reached that point."                                                                         
+## 
+## $en_US.twitter.txt
+## [1] "No playoffs this year, another failed season. Where does this team go from here? They aren't close!"
+## [2] "It's crazy how happy you make me. (:"
+```
+
+The amount of words and chars are counted in this function:
+
+```r
+probeData()
+```
+
+```
+##                File Lines Words Characters Longest Line: Words
+## 1   en_US.blogs.txt   899 38297     212479                 347
+## 2    en_US.news.txt    77  2693      15831                 152
+## 3 en_US.twitter.txt  2360 30566     163681                  34
+##   Longest Line: Characters
+## 1                     2004
+## 2                      876
+## 3                      265
+```
+
 
 Constructing a word freqency table from a term document matrix makes it possible to see the most frequent words. Since the input source of the words that eventually will be targeted to be predicted, is not specified, the words from all the sources are put together.
 

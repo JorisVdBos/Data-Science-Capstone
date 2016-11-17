@@ -11,33 +11,11 @@ downloadFiles <- function(){
   }
 }
 
-# Loading the files into R
-readTextsSample <- function(lines = 10, lang = "en_US"){
-  sampleTexts <- list(blogTexts = rep(character(), lines),
-                           newsTexts = rep(character(), lines),
-                           twitterTexts = rep(character(), lines))
-    
-  con <- file(paste0("RawData/final/", lang, "/", lang, ".blogs.txt"), "r")
-  blogTexts <- readLines(con, lines, encoding="UTF-8")
-  sampleTexts$blogTexts <- blogTexts
-  close(con)
-  
-  con <- file(paste0("RawData/final/", lang, "/", lang, ".news.txt"), "r")
-  newsTexts <<- readLines(con, lines, encoding="UTF-8")
-  sampleTexts$newsTexts <- newsTexts
-  close(con)
-  
-  con <- file(paste0("RawData/final/", lang, "/", lang, ".twitter.txt"), "r")
-  twitterTexts <<- readLines(con, lines, encoding="UTF-8")
-  sampleTexts$twitterTexts <- twitterTexts
-  
-  close(con)
-  
-  sampleTexts
-}
 
 # Creating a subsample dir of the data. If sampleSize = 1 is chosen, it will simply delete the sample directory, as it would be a complete copy of the raw data
-createSampleDataDir <- function(sampleSize = 1, seed = 1, lang = "en_US"){
+createSampleDataDir <- function(sampleSize = 1, seed = 1){
+  if(!exists("lang") || is.na(lang)) lang <- "en_US"
+  
   if(file.exists("RawData/sampleTrain")) rm("RawData/sampleTrain")
   if(file.exists("RawData/sampleTest")) rm("RawData/sampleTest")
   if(file.exists("RawData/sampleValidate")) rm("RawData/sampleValidate")
@@ -147,7 +125,9 @@ corpusFilter <- function(corpus){
 # Creating a Corpus and term-document matrix
 # Tutorial: https://rstudio-pubs-static.s3.amazonaws.com/31867_8236987cf0a8444e962ccd2aec46d9c3.html#loading-texts
 # The function takes the data from the folder "RawData/sampleTrain" if it exists (and disregard the lang variable). Otherwise it will take directly from the raw data in "RawData/final/en_US/"
-createCorpus <- function(lang = "en_US"){
+createCorpus <- function(){
+  if(!exists("lang") || is.na(lang)) lang <- "en_US"
+  
   print("Creating Corpus object.")
   
   if(file.exists("RawData/sampleTrain"))

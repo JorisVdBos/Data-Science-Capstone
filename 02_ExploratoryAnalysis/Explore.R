@@ -32,3 +32,94 @@ ngramsFromCorpus <- function(corpus, n = 2) {
   ngrams
 }
 
+# Getting a sample from the files into R
+readTextsSample <- function(lines = 10, seed = 1){
+  if(!exists("lang") || is.na("lang")) lang <- "en_US"
+  set.seed(seed)
+  
+  sampleTexts <- list()
+  
+  for(file in paste0(lang, c(".blogs.txt", ".news.txt", ".twitter.txt"))){
+    # Get amount of lines
+    con <- file(paste0("RawData/sampleTrain/", file), "r")
+    fileLength <- length(readLines(con))
+    close(con)
+    
+    # Sample
+    lineSamples <- sample(1:fileLength, size = lines, replace = FALSE)
+    
+    # Read the sampled lines
+    sampleLines <- character()
+    con <- file(paste0("RawData/sampleTrain/", file), "r")
+    for(i in 1:fileLength){
+      lineRead <- readLines(con, 1)
+      if(i %in% lineSamples)
+        sampleLines <- c(sampleLines, lineRead)
+    }
+    close(con)
+    
+    # Accumulate results
+    sampleTexts[[file]] <- sampleLines
+    
+  }
+  
+  # Return results
+  sampleTexts
+}
+
+# Create data table with word count and line count
+probeData <- function(){
+  if(!exists("lang") || is.na("lang")) lang <- "en_US"
+  
+  # Init
+  files <- character()
+  linesTotals <- integer()
+  wordsTotals <- integer()
+  charTotals <- integer()
+  longestLinesW <- integer()
+  longestLinesC <- integer()
+  
+  for(file in list.files("RawData/sampleTrain/")){
+    
+    # Get amount of lines
+    con <- file(paste0("RawData/sampleTrain/", file), "r")
+    fileLength <- length(readLines(con))
+    close(con)
+    
+    # Read lines
+    longestLineW <- 0
+    longestLineC <- 0
+    wordsTotal <- 0
+    charTotal <- 0
+    con <- file(paste0("RawData/sampleTrain/", file), "r")
+    for(i in 1:fileLength){
+      lineRead <- readLines(con, 1)
+      
+      words <- length(strsplit(lineRead,' ')[[1]])
+      wordsTotal <- wordsTotal + words
+      charTotal <- charTotal + nchar(lineRead)
+      if(words > longestLineW)
+        longestLineW <- words
+      if(nchar(lineRead) > longestLineC)
+        longestLineC <- nchar(lineRead)
+    }
+    close(con)
+    
+    # Accumulate results
+    files <- c(files, file)
+    linesTotals <- c(linesTotals, fileLength)
+    wordsTotals <- c(wordsTotals, wordsTotal)
+    charTotals <- c(charTotals, charTotal)
+    longestLinesW <- c(longestLinesW, longestLineW)
+    longestLinesC <- c(longestLinesC, longestLineC)
+    
+  }
+  
+  # Return results
+  textFiles <- data.frame(File = files, Lines = linesTotals, Words = wordsTotals,
+             Characters = charTotals, longestLineW = longestLinesW, longestLineC = longestLinesC)
+  names(textFiles)[5] <- "Longest Line: Words"
+  names(textFiles)[6] <- "Longest Line: Characters"
+  
+  textFiles
+}

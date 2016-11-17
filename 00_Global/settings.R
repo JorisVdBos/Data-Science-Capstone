@@ -2,6 +2,7 @@
 
 # Global
 seed <- 10
+lang <- "en_US"   # Language
 
 # Reading data
 usePercentageOfData <- 0.001

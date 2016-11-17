@@ -3,7 +3,9 @@ source(file = "03_Modelling/Models.R")
 messagesTesting <- FALSE
 
 # Reads random sentences in the data and determines how many words could be predicted
-testModel <- function(model, fraction = 0.1, seed = 1, lang = "en_US"){
+testModel <- function(model, fraction = 0.1, seed = 1){
+  if(!exists("lang") || is.na(lang)) lang <- "en_US"
+  
   set.seed(seed)
   if(fraction > 1 || fraction < 0) iconv <- 1
   

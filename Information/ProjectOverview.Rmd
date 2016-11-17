@@ -40,11 +40,6 @@ This function downloads the files from the internet, if they are not yet present
 downloadFiles()
 ```
 
-This function loads a sample of the data into R. It creates three
-```{r readSample}
-readTextsSample(lines = 2, lang = "en_US")
-```
-
 Because reading in all the data takes way too long, this function takes a fraction and puts it into a sample folder, sampleTrain. The leftover data is also copied, into two more folders: sampleTest and sampleValidate. These data sets are completely randomly chosen (hence the seed) and the maximum size is the amount of lines of the training fata.
 ```{r createSample, eval = FALSE}
 usePercentageOfData
@@ -62,6 +57,17 @@ These functions are found in this folder:
 ```{r sourceExplAnalysis}
 source("02_ExploratoryAnalysis/Explore.R")
 ```
+
+This function loads a random sample of the lines of data into R from the three sources.
+```{r readSample}
+readTextsSample(lines = 2, seed = 104)
+```
+
+The amount of words and chars are counted in this function:
+```{r countWords}
+probeData()
+```
+
 
 Constructing a word freqency table from a term document matrix makes it possible to see the most frequent words. Since the input source of the words that eventually will be targeted to be predicted, is not specified, the words from all the sources are put together.
 ```{r wordFreq}
