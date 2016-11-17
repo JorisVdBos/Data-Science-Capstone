@@ -1,20 +1,9 @@
 source("01_Load/load.R")
+source("02_ExploratoryAnalysis/Explore.R")
 if(!exists("corpus"))
   corpus <- createCorpus()
 if(!exists("tdm"))
   tdm <- TermDocumentMatrix(corpus, control = list(wordLengths=c(0, Inf)))
-
-# This function will translate the output of the n-grams to a one-word solution. (Basically it will strip a string to return the last word.)
-strip <- function(x){
-  output <- character()
-  for(i in x){
-    i <- gsub(" $", "", i)
-    i <- gsub(".+ ", "", i)
-    output <- c(output, i)
-  }
-  
-  output
-}
 
 # This first model looks at the freqency table of the 3-grams and takes the three options that are most frequent. If less than three options are found, it will look at the 2-grams table
 predict.FreqModel <- function(model, word1 = NULL, word2 = NULL){
@@ -30,9 +19,15 @@ predict.FreqModel <- function(model, word1 = NULL, word2 = NULL){
   }
   
   # Finding input word indices
-  if(word1 == "/n") inputWord1Index <- 0 else
+  if(length(word1) == 0 || word1 == "\n") inputWord1Index <- 0 else
     inputWord1Index <- which(model$wordFreqTable$word == word1)
-  if(word2 == "/n") inputWord2Index <- 0 else
+  
+  if(length(word1) > 1) {
+    print("length(word1) > 1")
+    print(word1)
+  }
+  
+  if(length(word2) == 0 || word2 == "\n") inputWord2Index <- 0 else
     inputWord2Index <- which(model$wordFreqTable$word == word2)
   
   # Find solutions in the 3-grams table
@@ -55,8 +50,7 @@ predict.FreqModel <- function(model, word1 = NULL, word2 = NULL){
       k <- i
       while(sol %in% solutions$value){
         k <- k + 1
-        sol <- model$n2gramsTable[sol2gram,]$indexWord2[k]
-        sol <- strip(sol)
+        sol <- sol2gram[k]
         if(is.na(sol)) break
       }
       

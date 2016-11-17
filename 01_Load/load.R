@@ -111,6 +111,20 @@ corpusFilter <- function(corpus){
   ## Removing double \n and \n at the beginning and end and putting it between spaces
   corpus <- tm_map(corpus, content_transformer(gsub), pattern = " *[\n]+ *", replacement = " \n ")
   corpus <- tm_map(corpus, content_transformer(gsub), pattern = "^( \n) | (\n )$", replacement = " ")
+  corpus <- tm_map(corpus, content_transformer(gsub), pattern = " +", replacement = " ")
+  corpus <- tm_map(corpus, content_transformer(gsub), pattern = " $", replacement = "")
+  corpus <- tm_map(corpus, content_transformer(gsub), pattern = "^ ", replacement = "")
+  
+  # Some special character cases
+  s <- "\u0091"
+  corpus <- tm_map(corpus, content_transformer(gsub), pattern = s, replacement = "'")
+  s <- "\u0092"
+  corpus <- tm_map(corpus, content_transformer(gsub), pattern = s, replacement = "'")
+  s <- "\u0093"
+  corpus <- tm_map(corpus, content_transformer(gsub), pattern = s, replacement = "")
+  s <- "\u0094"
+  corpus <- tm_map(corpus, content_transformer(gsub), pattern = s, replacement = "")
+  
   
   ## Converting all to lowercase
   corpus <- tm_map(corpus, tolower)
