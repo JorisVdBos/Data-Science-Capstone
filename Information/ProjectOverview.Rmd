@@ -15,8 +15,13 @@ knitr::opts_chunk$set(cache = FALSE)
 knitr::opts_knit$set(root.dir = normalizePath('../'))
 ```
 
+# Introduction
+Welcome reader to the documentation of my Coursera Data Science's final project. In this document I will provide you with an overview of my actions and ideas I had about the project.
+
+You will see I have tried to divide all steps I have taken into functions. I will not go into detail about how they are constructed. For that you can delve into the R scripts themselves. Instead I will comment on what they do and show the output.
+
 # Global options
-global options and the libraries used are found in the Global folder:
+global options and the libraries used are found in the Global folder.
 ```{r}
 source("00_Global/libraries.R")
 source("00_Global/settings.R")
@@ -30,43 +35,42 @@ source("01_Load/load.R")
 ```
 
 ## Usage
-Downloading the data:
+This function downloads the files from the internet, if they are not yet present.
 ```{r downloadFiles}
-if(!file.exists("RawData/final")){
-  downloadFiles()
-}
+downloadFiles()
 ```
 
-To load a sample of the files into R, function "readTextsSample" was created:
+This function loads a sample of the data into R. It creates three
 ```{r readSample}
 readTextsSample(lines = 2, lang = "en_US")
-twitterTexts
 ```
 
-Creating a subfolder "sample" in the "RawData" folder. This may take a few minutes.
+Because reading in all the data takes way too long, this function takes a fraction and puts it into a sample folder, sampleTrain. The leftover data is also copied, into two more folders: sampleTest and sampleValidate. These data sets are completely randomly chosen (hence the seed) and the maximum size is the amount of lines of the training fata.
 ```{r createSample, eval = FALSE}
+usePercentageOfData
 createSampleDataDir(usePercentageOfData, seed, lang = "en_US")
 ```
 
-Reading the sample data into a corpus is done using function "createCorpus":
+Reading the training sample data into a corpus is done using function "createCorpus". There was a great deal of filtering done in this function. The special characters and numbers were removed. The stopwords and conjugation words have deliberately been kept inside, so they can also be taken in account with the predictions. The most notable change I made was keeping all the "'" to preseve words such as "don't" and "I'm". Also, dots were replaced with a "\n" string. These denote the end and beginning of a senctence so they can also be processed in the prediction model. That way you can predict when a person will end the sentence, and make better preditions at the start of a sentence.
 ```{r createCorpus, cache = TRUE, results = 'hide'}
 corpus <- createCorpus(lang = "en_US")
 tdm <- TermDocumentMatrix(corpus, control = list(wordLengths=c(0, Inf)))
 ```
 
 # Exploratory Analysis
+These functions are found in this folder:
 ```{r sourceExplAnalysis}
 source("02_ExploratoryAnalysis/Explore.R")
 ```
 
-Constructing a word freqency table from a term document matrix:
+Constructing a word freqency table from a term document matrix makes it possible to see the most frequent words. Since the input source of the words that eventually will be targeted to be predicted, is not specified, the words from all the sources are put together.
 ```{r wordFreq}
 wordFreqTable <- wordFreq(tdm)
 wordFreqTable[1:10, ] # The 10 most frequent words
 wordFreqTable # The 10 most frequent words
 ```
 
-Most words only appear once. The frequency is distributed as such:
+Most words only appear once, which was somewhat to be expected. The frequency is distributed as such:
 ```{r wordDensity}
 density <- wordFreqTable[, .(count = .N), by = freq]
 density[, density := count /sum(density$count)]
@@ -105,11 +109,12 @@ ggplot(data= n3gramsTable) +
 ```
 
 # Modelling
+Modelling functions are found in this folder:
 ```{r modelling}
 source("03_Modelling/Models.R")
 ```
 
-This first model looks at the freqency table of the 3-grams and takes the three options that are most frequent. If less than three options are found, it will look at the 2-grams table. If still no options are found, it will look at the most freqent words.
+This first model I made, will search the freqency table of the 3-grams and takes the three (by default) options that are most frequent. If less than three options are found, it will look at the 2-grams table. If still no options are found, it will look at the most freqent words. That way, the model will always have a guess, even though it has nothing to go for. I have also included the source of the prediction to be returned.
 ```{r model1Examples}
 freqModel <- createFreqModel(corpus, tdm)
 print(predict(freqModel, "then", "you"))
@@ -118,7 +123,7 @@ print(predict(freqModel, "xnjiqqfqsf", "you"))
 print(predict(freqModel, "xnjiqqfqsf", "nqnjndjiqpdns"))
 ```
 
-To save space, the words will be stored as numbers, according to their rank in the freqency table
+To save space, the words were stored as an ordered data table. This way, they all have an unique index number, which can be used as quick lookup table for the words. The 2 and 3-grams are also ordered lists with the more prevalent combinations at the top. The downside of this model is that you cannot add new entries to it, because it cannot determine anymore if the new combinations are more prevalent than the allready existing ones in it. This can be fixed to add a new row to all tables with the freqencies but this was not part of the scope (for now).
 ```{r showModel}
 freqModel
 ```
@@ -126,14 +131,16 @@ freqModel
 The size of the model:
 ```{r}
 object.size(freqModel)
-object.size(freqModel)*10^-6 # In megabytes
+object.size(freqModel) / 1024^2 # In megabytes
 ```
 
-Evaluation of the model is done by this function. When a sample was taken of the data set for training the model, there was also a map made with testing data.
+Evaluation of the model is done by this function. It will take the data from the testing map, made in the first chapter with the createSampleDataDir function. It will take the fraction you want (or everything) and check word for word if it could have been predicted with the model provided.
 ```{r testModel1}
 source("03_Modelling/Evaluation.R")
 testModel(freqModel, fraction = 0.1)
 ```
+
+So the prediction is about 17%, which is not very impressive.
 
 The prediction succes can be higher by letting the prediction model give more options. If we change the model to give 5 possibilities instead of only 3, the succesrate goes up:
 ```{r testModel2}
@@ -141,3 +148,5 @@ source("03_Modelling/Evaluation.R")
 giveNumberOfPossibilities <- 5
 testModel(freqModel, fraction = 0.1)
 ```
+
+For the next model I will have to check where the model fails and what can be done to improve it!

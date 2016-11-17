@@ -3,25 +3,37 @@ source("00_Global/settings.R")
 
 # Downloading the files
 downloadFiles <- function(){
-  download.file("https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip", "data.zip")
-  if(!file.exists("RawData")) dir.create("RawData")
-  unzip("data.zip", exdir = "RawData")
-  file.remove("data.zip")
+  if(!file.exists("RawData/final")){
+    download.file("https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip", "data.zip")
+    if(!file.exists("RawData")) dir.create("RawData")
+    unzip("data.zip", exdir = "RawData")
+    file.remove("data.zip")
+  }
 }
 
 # Loading the files into R
 readTextsSample <- function(lines = 10, lang = "en_US"){
+  sampleTexts <- list(blogTexts = rep(character(), lines),
+                           newsTexts = rep(character(), lines),
+                           twitterTexts = rep(character(), lines))
+    
   con <- file(paste0("RawData/final/", lang, "/", lang, ".blogs.txt"), "r")
-  blogTexts <<- readLines(con, lines, encoding="UTF-8")
+  blogTexts <- readLines(con, lines, encoding="UTF-8")
+  sampleTexts$blogTexts <- blogTexts
   close(con)
   
   con <- file(paste0("RawData/final/", lang, "/", lang, ".news.txt"), "r")
   newsTexts <<- readLines(con, lines, encoding="UTF-8")
+  sampleTexts$newsTexts <- newsTexts
   close(con)
   
   con <- file(paste0("RawData/final/", lang, "/", lang, ".twitter.txt"), "r")
   twitterTexts <<- readLines(con, lines, encoding="UTF-8")
+  sampleTexts$twitterTexts <- twitterTexts
+  
   close(con)
+  
+  sampleTexts
 }
 
 # Creating a subsample dir of the data. If sampleSize = 1 is chosen, it will simply delete the sample directory, as it would be a complete copy of the raw data

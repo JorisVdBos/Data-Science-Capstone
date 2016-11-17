@@ -6,9 +6,10 @@ The goal of this data science specialization has been to give you the basic skil
 
 # Files setup
 The contents of the in this supository are ordered in these maps:
-- Information: Here you will find detailed information on how I completed the project. You will see I have tried to construct all steps taken into functions, so it would be easy to read. For detailed information about the working of a function you can delve into the R scripts themselves.
+- Information: Here you will find detailed information on how I completed the project. You will see I have tried to divide all steps I have taken into functions. I will go over them swiftly with some comments. For detailed information about the working of a function you can delve into the R scripts themselves.
 - 00 Global: Here some default scripts are saved. The library file containes all the R libraries that are used throughout the coding in the project. In the settings script, I have gathered all the variables that can be tweaked throughout the project. That way you may change them and run the whole project again.
 - 01 Load: Contains the scripst of handling the raw data such as downloading, sampling, loading into R and also the cleaning of the data.
-- 02 Exploratory Analaysis: Addresses questions regarding word freqency, n-grams of length 2 and 3.
+- 02 Exploratory Analaysis: Functions regarding exploring the data for word freqency,etc. are found here
+- 03 Modelling: All the models and functions regarding the models (such as validations etc.) are found here
 
 Thanks for reading! - Joris Van den Bossche

@@ -9,6 +9,9 @@ if(!exists("tdm"))
 
 # This first model looks at the freqency table of the 3-grams and takes the three options that are most frequent. If less than three options are found, it will look at the 2-grams table
 predict.FreqModel <- function(model, word1 = NULL, word2 = NULL){
+  # Check default giveNumberOfPossibilities
+  if(is.null(giveNumberOfPossibilities)) giveNumberOfPossibilities <- 3
+  
   # If word1 is empty, regard the input as the beginning of a sentence:
   if(is.null(word1)){
     word1 <- "/n"
