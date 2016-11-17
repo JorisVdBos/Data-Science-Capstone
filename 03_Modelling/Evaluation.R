@@ -1,6 +1,6 @@
 source(file = "03_Modelling/Models.R")
 
-messagesTesting <- TRUE
+messagesTesting <- FALSE
 
 # Reads random sentences in the data and determines how many words could be predicted
 testModel <- function(model, fraction = 0.1, seed = 1, lang = "en_US"){
@@ -31,11 +31,12 @@ testModel <- function(model, fraction = 0.1, seed = 1, lang = "en_US"){
     # Read lines and write them in a seperate file
     conR <- file(paste0("RawData/sampleTest/", file), "r")
     
-    print(paste0("Reading ", file,"..."))
-    pb <- txtProgressBar(style = 3)
+    if(messagesTesting)
+      pb <- txtProgressBar(style = 3)
     
     for(i in 1:fileLengthTest){
-      setTxtProgressBar(pb, i/fileLengthTest)
+      if(messagesTesting)
+        setTxtProgressBar(pb, i/fileLengthTest)
       line <- readLines(conR, 1)
       if(i %in% fileLengthTestSample){
         # Split the line
@@ -66,8 +67,10 @@ testModel <- function(model, fraction = 0.1, seed = 1, lang = "en_US"){
           
           predicted <- predict(model, word1, word2)$value
           
-          if(messagesTesting)
-            print(paste("The options were", predicted[1], ",", predicted[2], "and", predicted[3]))
+          if(messagesTesting){
+            print(paste("The options were"))
+            print(predicted)
+          }
           
           if(word %in% predicted){
             if(messagesTesting)
@@ -84,11 +87,13 @@ testModel <- function(model, fraction = 0.1, seed = 1, lang = "en_US"){
       }
     }
     
-    close(pb)
+    if(messagesTesting)
+      close(pb)
     close(conR)
   }
   
   score$percentageRecommended <- score$recommendedInputs / score$totalInputs
   
+  names(score) <- c("Words attempted to be predicted", "Prediction was a success", "Percentage successful preduction")
   return(score)
 }

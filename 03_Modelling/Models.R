@@ -1,5 +1,7 @@
 source("01_Load/load.R")
 source("02_ExploratoryAnalysis/Explore.R")
+source("03_Modelling/General.R")
+
 if(!exists("corpus"))
   corpus <- createCorpus()
 if(!exists("tdm"))
@@ -33,9 +35,9 @@ predict.FreqModel <- function(model, word1 = NULL, word2 = NULL){
   # Find solutions in the 3-grams table
   solutions <- model$n3gramsTable[indexWord1 == inputWord1Index & indexWord2 == inputWord2Index]
   # Take the first three solutions
-  solutions <- data.table(value = solutions$indexWord3[1:3])
+  solutions <- data.table(value = solutions$indexWord3[1:giveNumberOfPossibilities])
   
-  solutions$source <- rep("n3gramsTable", 3)
+  solutions$source <- rep("n3gramsTable", giveNumberOfPossibilities)
   
   # Find more solutions in the 2-grams table if necessairy
   findMore <- sum(is.na(solutions$value))
@@ -55,8 +57,8 @@ predict.FreqModel <- function(model, word1 = NULL, word2 = NULL){
       }
       
       # Add 2gram solution to solutions vector
-      solutions$value[3 - findMore + i] <- sol
-      solutions$source[3 - findMore + i] <- "2gramsTable"
+      solutions$value[giveNumberOfPossibilities - findMore + i] <- sol
+      solutions$source[giveNumberOfPossibilities - findMore + i] <- "2gramsTable"
     }
   }
   
@@ -72,8 +74,8 @@ predict.FreqModel <- function(model, word1 = NULL, word2 = NULL){
       }
       
       # Add solution to solutions vector
-      solutions$value[3 - findMore + i] <- k
-      solutions$source[3 - findMore + i] <- "wordFreqencyTable"
+      solutions$value[giveNumberOfPossibilities - findMore + i] <- k
+      solutions$source[giveNumberOfPossibilities - findMore + i] <- "wordFreqencyTable"
     }
   }
   

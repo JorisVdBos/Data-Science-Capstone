@@ -129,3 +129,15 @@ object.size(freqModel)
 object.size(freqModel)*10^-6 # In megabytes
 ```
 
+Evaluation of the model is done by this function. When a sample was taken of the data set for training the model, there was also a map made with testing data.
+```{r testModel1}
+source("03_Modelling/Evaluation.R")
+testModel(freqModel, fraction = 0.1)
+```
+
+The prediction succes can be higher by letting the prediction model give more options. If we change the model to give 5 possibilities instead of only 3, the succesrate goes up:
+```{r testModel2}
+source("03_Modelling/Evaluation.R")
+giveNumberOfPossibilities <- 5
+testModel(freqModel, fraction = 0.1)
+```

@@ -5,3 +5,6 @@ seed <- 10
 
 # Reading data
 usePercentageOfData <- 0.001
+
+# Modelling
+giveNumberOfPossibilities <- 3
