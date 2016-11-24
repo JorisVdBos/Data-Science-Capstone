@@ -2,11 +2,6 @@ source("01_Load/load.R")
 source("02_ExploratoryAnalysis/Explore.R")
 source("03_Modelling/General.R")
 
-if(!exists("corpus"))
-  corpus <- createCorpus()
-if(!exists("tdm"))
-  tdm <- TermDocumentMatrix(corpus, control = list(wordLengths=c(0, Inf)))
-
 # This first model looks at the freqency table of the 3-grams and takes the three options that are most frequent. If less than three options are found, it will look at the 2-grams table
 predict.FreqModel <- function(model, word1 = NULL, word2 = NULL){
   # Check default giveNumberOfPossibilities
@@ -17,10 +12,17 @@ predict.FreqModel <- function(model, word1 = NULL, word2 = NULL){
     word1 <- "/n"
   }
   
-  # If word2 is empty, regard the input as a first word of a sentence:
+  # If word2 is empty, check if the input of word1 is a sentence. If so split it up. If not, regard the input as a first word of a sentence:
   if(is.null(word2)){
-    word2 <- word1
-    word1 <- "/n"
+    word1Split <- strsplit(word1, " ")[[1]]
+    if(length(word1Split) == 1){
+      word2 <- word1
+      word1 <- "/n"
+    } else {
+      word1ModelInput <- modelInput(word1)
+      word1 <- word1ModelInput$word1
+      word2 <- word1ModelInput$word2
+    }
   }
   
   # Finding input word indices

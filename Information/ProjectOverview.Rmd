@@ -20,19 +20,17 @@ Welcome reader to the documentation of my Coursera Data Science's final project.
 
 You will see I have tried to divide all steps I have taken into functions. I will not go into detail about how they are constructed. For that you can delve into the R scripts themselves. Instead I will comment on what they do and show the output.
 
+The supository can be found [here on github](https://github.com/JorisVdBos/Data-Science-Capstone).
+
 # Global options
-global options and the libraries used are found in the Global folder.
+The libraries and all functions used are loaded in with the following file in the Global folder.
 ```{r}
 source("00_Global/libraries.R")
-source("00_Global/settings.R")
 ```
 
 
 # Reading in data
-Functions are defined in this folder for downloading, sampling and loading the data into R.
-```{r sourceLoad, cache = FALSE}
-source("01_Load/load.R")
-```
+Functions are defined in the folder "01_Load" for downloading, sampling and loading the data into R.
 
 ## Usage
 This function downloads the files from the internet, if they are not yet present.
@@ -43,7 +41,7 @@ downloadFiles()
 Because reading in all the data takes way too long, this function takes a fraction and puts it into a sample folder, sampleTrain. The leftover data is also copied, into two more folders: sampleTest and sampleValidate. These data sets are completely randomly chosen (hence the seed) and the maximum size is the amount of lines of the training fata.
 ```{r createSample, eval = FALSE}
 usePercentageOfData
-createSampleDataDir(usePercentageOfData, seed, lang = "en_US")
+createSampleDataDir(usePercentageOfData, seed)
 ```
 
 Reading the training sample data into a corpus is done using function "createCorpus". There was a great deal of filtering done in this function. The special characters and numbers were removed. The stopwords and conjugation words have deliberately been kept inside, so they can also be taken in account with the predictions. The most notable change I made was keeping all the "'" to preseve words such as "don't" and "I'm". Also, dots were replaced with a "\n" string. These denote the end and beginning of a senctence so they can also be processed in the prediction model. That way you can predict when a person will end the sentence, and make better preditions at the start of a sentence.
@@ -53,10 +51,7 @@ tdm <- TermDocumentMatrix(corpus, control = list(wordLengths=c(0, Inf)))
 ```
 
 # Exploratory Analysis
-These functions are found in this folder:
-```{r sourceExplAnalysis}
-source("02_ExploratoryAnalysis/Explore.R")
-```
+These functions are found in the folder "02_ExploratoryAnalysis".
 
 This function loads a random sample of the lines of data into R from the three sources.
 ```{r readSample}
@@ -64,7 +59,7 @@ readTextsSample(lines = 2, seed = 104)
 ```
 
 The amount of words and chars are counted in this function:
-```{r countWords}
+```{r countWords, cache = TRUE}
 probeData()
 ```
 
@@ -73,7 +68,6 @@ Constructing a word freqency table from a term document matrix makes it possible
 ```{r wordFreq}
 wordFreqTable <- wordFreq(tdm)
 wordFreqTable[1:10, ] # The 10 most frequent words
-wordFreqTable # The 10 most frequent words
 ```
 
 Most words only appear once, which was somewhat to be expected. The frequency is distributed as such:
@@ -115,10 +109,7 @@ ggplot(data= n3gramsTable) +
 ```
 
 # Modelling
-Modelling functions are found in this folder:
-```{r modelling}
-source("03_Modelling/Models.R")
-```
+Modelling functions are found in the folder "03_Modelling".
 
 This first model I made, will search the freqency table of the 3-grams and takes the three (by default) options that are most frequent. If less than three options are found, it will look at the 2-grams table. If still no options are found, it will look at the most freqent words. That way, the model will always have a guess, even though it has nothing to go for. I have also included the source of the prediction to be returned.
 ```{r model1Examples}
@@ -142,7 +133,6 @@ object.size(freqModel) / 1024^2 # In megabytes
 
 Evaluation of the model is done by this function. It will take the data from the testing map, made in the first chapter with the createSampleDataDir function. It will take the fraction you want (or everything) and check word for word if it could have been predicted with the model provided.
 ```{r testModel1}
-source("03_Modelling/Evaluation.R")
 testModel(freqModel, fraction = 0.1)
 ```
 
@@ -150,9 +140,8 @@ So the prediction is about 17%, which is not very impressive.
 
 The prediction succes can be higher by letting the prediction model give more options. If we change the model to give 5 possibilities instead of only 3, the succesrate goes up:
 ```{r testModel2}
-source("03_Modelling/Evaluation.R")
 giveNumberOfPossibilities <- 5
-testModel(freqModel, fraction = 0.1)
+testModel(freqModel, fraction = 0.001)
 ```
 
 For the next model I will have to check where the model fails and what can be done to improve it!

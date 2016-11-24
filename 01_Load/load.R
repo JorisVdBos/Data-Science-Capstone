@@ -1,12 +1,12 @@
-source("00_Global/libraries.R")
-source("00_Global/settings.R")
+if(!exists("loadedAllScripts"))
+  source("00_Global/libraries.R")
 
 # Downloading the files
 downloadFiles <- function(){
-  if(!file.exists("RawData/final")){
+  if(!file.exists(originalDataFolder)){
     download.file("https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip", "data.zip")
-    if(!file.exists("RawData")) dir.create("RawData")
-    unzip("data.zip", exdir = "RawData")
+    if(!file.exists(rawDataFolder)) dir.create(rawDataFolder)
+    unzip("data.zip", exdir = rawDataFolder)
     file.remove("data.zip")
   }
 }
@@ -14,11 +14,10 @@ downloadFiles <- function(){
 
 # Creating a subsample dir of the data. If sampleSize = 1 is chosen, it will simply delete the sample directory, as it would be a complete copy of the raw data
 createSampleDataDir <- function(sampleSize = 1, seed = 1){
-  if(!exists("lang") || is.na(lang)) lang <- "en_US"
   
-  if(file.exists("RawData/sampleTrain")) rm("RawData/sampleTrain")
-  if(file.exists("RawData/sampleTest")) rm("RawData/sampleTest")
-  if(file.exists("RawData/sampleValidate")) rm("RawData/sampleValidate")
+  if(file.exists(trainFolder)) rm(trainFolder)
+  if(file.exists(testFolder)) rm(testFolder)
+  if(file.exists(validateFolder)) rm(validateFolder)
   set.seed(seed)
   
   # Check sampleSize parameter
@@ -26,13 +25,13 @@ createSampleDataDir <- function(sampleSize = 1, seed = 1){
     return("Deleted sample map.")
   
   # Create sample dir
-  dir.create("RawData/sampleTrain")
-  dir.create("RawData/sampleTest")
-  dir.create("RawData/sampleValidate")
+  dir.create(trainFolder)
+  dir.create(testFolder)
+  dir.create(validateFolder)
   
-  for(file in paste0(lang, c(".blogs.txt", ".news.txt", ".twitter.txt"))){
+  for(file in dataFiles){
     # Calculate which lines to read
-    con <- file(paste0("RawData/final/", lang, "/", file), "r")
+    con <- file(paste0(originalDataFolder, "/", file), "r")
     fileLength <- length(readLines(con, encoding="UTF-8"))
     close(con)
     linesToReadTrain <- sample(fileLength, floor(fileLength*sampleSize), replace = FALSE)
@@ -53,15 +52,15 @@ createSampleDataDir <- function(sampleSize = 1, seed = 1){
     print(paste("Total validation lines for", file, "is", length(linesToReadValidate)))
     
     # Create the new text file
-    file.create(paste0("RawData/sampleTrain/", file))
-    file.create(paste0("RawData/sampleTest/", file))
-    file.create(paste0("RawData/sampleValidate/", file))
+    file.create(paste0(trainFolder, "/", file))
+    file.create(paste0(testFolder, "/", file))
+    file.create(paste0(valdateFolder, "/", file))
     
     # Read lines and write them in a seperate file
-    conR <- file(paste0("RawData/final/", lang, "/", file), "r")
-    conWTrain <- file(paste0("RawData/sampleTrain/", file), "w")
-    conWTest <- file(paste0("RawData/sampleTest/", file), "w")
-    conWValidate <- file(paste0("RawData/sampleValidate/", file), "w")
+    conR <- file(paste0(originalDataFolder, "/", file), "r")
+    conWTrain <- file(paste0(trainFolder, "/", file), "w")
+    conWTest <- file(paste0(testFolder, "/", file), "w")
+    conWValidate <- file(paste0(valdateFolder, "/", file), "w")
     
     print(paste0("Reading ", file,"..."))
     pb <- txtProgressBar(style = 3)
@@ -124,15 +123,14 @@ corpusFilter <- function(corpus){
 
 # Creating a Corpus and term-document matrix
 # Tutorial: https://rstudio-pubs-static.s3.amazonaws.com/31867_8236987cf0a8444e962ccd2aec46d9c3.html#loading-texts
-# The function takes the data from the folder "RawData/sampleTrain" if it exists (and disregard the lang variable). Otherwise it will take directly from the raw data in "RawData/final/en_US/"
+# The function takes the data from the folder "sampleTrain" if it exists. Otherwise it will take directly from the raw data in "final/en_US/". See the paths file in the global map for the full paths
 createCorpus <- function(){
-  if(!exists("lang") || is.na(lang)) lang <- "en_US"
   
   print("Creating Corpus object.")
   
-  if(file.exists("RawData/sampleTrain"))
-    dirSource <- DirSource("RawData/sampleTrain") else
-      dirSource <- DirSource("RawData/final/", lang, "/")
+  if(file.exists(trainFolder))
+    dirSource <- DirSource(trainFolder) else
+      dirSource <- DirSource(originalDataFolder)
   
   dirSource$encoding <- "UTF-8"
   corpus <- Corpus(dirSource)

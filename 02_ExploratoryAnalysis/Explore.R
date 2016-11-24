@@ -7,12 +7,8 @@
 #' plot(tdm, corThreshold = 0.2, weighting = TRUE)
 #' termFreq(crude[[14]])
 
-
-source("01_Load/load.R")
-if(!exists("corpus"))
-  corpus <- createCorpus()
-if(!exists("tdm"))
-  tdm <- TermDocumentMatrix(corpus, control = list(wordLengths=c(0, Inf)))
+if(!exists("loadedAllScripts"))
+  source("00_Global/libraries.R")
 
 # Create table with word freqencies
 wordFreq <- function(tdm){
@@ -34,14 +30,13 @@ ngramsFromCorpus <- function(corpus, n = 2) {
 
 # Getting a sample from the files into R
 readTextsSample <- function(lines = 10, seed = 1){
-  if(!exists("lang") || is.na("lang")) lang <- "en_US"
   set.seed(seed)
   
   sampleTexts <- list()
   
-  for(file in paste0(lang, c(".blogs.txt", ".news.txt", ".twitter.txt"))){
+  for(file in dataFiles){
     # Get amount of lines
-    con <- file(paste0("RawData/sampleTrain/", file), "r")
+    con <- file(paste0(trainfolder, file), "r")
     fileLength <- length(readLines(con))
     close(con)
     
@@ -50,7 +45,7 @@ readTextsSample <- function(lines = 10, seed = 1){
     
     # Read the sampled lines
     sampleLines <- character()
-    con <- file(paste0("RawData/sampleTrain/", file), "r")
+    con <- file(paste0(trainfolder, file), "r")
     for(i in 1:fileLength){
       lineRead <- readLines(con, 1)
       if(i %in% lineSamples)
@@ -69,7 +64,6 @@ readTextsSample <- function(lines = 10, seed = 1){
 
 # Create data table with word count and line count
 probeData <- function(){
-  if(!exists("lang") || is.na("lang")) lang <- "en_US"
   
   # Init
   files <- character()
@@ -79,10 +73,10 @@ probeData <- function(){
   longestLinesW <- integer()
   longestLinesC <- integer()
   
-  for(file in list.files("RawData/sampleTrain/")){
+  for(file in list.files(originalDataFolder)){
     
     # Get amount of lines
-    con <- file(paste0("RawData/sampleTrain/", file), "r")
+    con <- file(paste0(originalDataFolder, "/", file), "r")
     fileLength <- length(readLines(con))
     close(con)
     
@@ -91,7 +85,7 @@ probeData <- function(){
     longestLineC <- 0
     wordsTotal <- 0
     charTotal <- 0
-    con <- file(paste0("RawData/sampleTrain/", file), "r")
+    con <- file(paste0(originalDataFolder, "/", file), "r")
     for(i in 1:fileLength){
       lineRead <- readLines(con, 1)
       
