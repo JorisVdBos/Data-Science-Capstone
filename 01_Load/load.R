@@ -14,11 +14,13 @@ downloadFiles <- function(){
 
 # Creating a subsample dir of the data. If sampleSize = 1 is chosen, it will simply delete the sample directory, as it would be a complete copy of the raw data
 createSampleDataDir <- function(sampleSize = 1, seed = 1){
+  set.seed(seed)
   
   if(file.exists(trainFolder)) rm(trainFolder)
   if(file.exists(testFolder)) rm(testFolder)
   if(file.exists(validateFolder)) rm(validateFolder)
-  set.seed(seed)
+  percentageMap <- paste0(paste0(rawDataFolder, "/percentage", usePercentageOfData*100))
+  if(!file.exists(percentageMap)) dir.create(percentageMap)
   
   # Check sampleSize parameter
   if(is.numeric(sampleSize) && (sampleSize >= 1 || sampleSize <= 0)) 
@@ -54,13 +56,13 @@ createSampleDataDir <- function(sampleSize = 1, seed = 1){
     # Create the new text file
     file.create(paste0(trainFolder, "/", file))
     file.create(paste0(testFolder, "/", file))
-    file.create(paste0(valdateFolder, "/", file))
+    file.create(paste0(validateFolder, "/", file))
     
     # Read lines and write them in a seperate file
     conR <- file(paste0(originalDataFolder, "/", file), "r")
     conWTrain <- file(paste0(trainFolder, "/", file), "w")
     conWTest <- file(paste0(testFolder, "/", file), "w")
-    conWValidate <- file(paste0(valdateFolder, "/", file), "w")
+    conWValidate <- file(paste0(validateFolder, "/", file), "w")
     
     print(paste0("Reading ", file,"..."))
     pb <- txtProgressBar(style = 3)
@@ -83,18 +85,31 @@ createSampleDataDir <- function(sampleSize = 1, seed = 1){
 
 # The corpus filter is defined here, so it can be used later to craft the input into the model
 removePunctuationsExeptions <- function(x) {
-  x <- gsub(",+", "123", x)
-  x <- gsub("'+", "456", x)
+  # Replace/"save" punctuations to be disgarded, in numbers
+  x <- gsub("[0-9]+", "#", x)
+  x <- gsub("[#*\\.*|#*,*]*#", "000", x) # A number in any notation
+  x <- gsub(",+", " 001 ", x) # Comma
+  x <- gsub("\\.+", " 002 ", x) # Point
+  x <- gsub("'+", "003", x) # Accent -> Not seperated by spaces to conserve words such as "don't" etc.
+  x <- gsub("\\?+", " 004 ", x) # QuestionMark
+  x <- gsub("!+", " 005 ", x) # ExclamationMark
+  
+  # Remove all punctuations
   x <- gsub("[[:punct:]]+", "", x)
-  x <- gsub(" *123 *", " , ", x)
-  x <- gsub(" *456 *", "'", x)
+  
+  # Re-install the saved punctuations
+  x <- gsub(" *000 *", " # ", x)
+  x <- gsub(" *001 *", " , ", x)
+  x <- gsub(" *002 *", " /n ", x)
+  x <- gsub(" *003 *", "'", x)
+  x <- gsub(" *004 *", " ? ", x)
+  x <- gsub(" *005 *", " ! ", x)
   x
 }
 corpusFilter <- function(corpus){
   ## Removing numbers
   corpus <- tm_map(corpus, removeNumbers)
   ## Punctuations: Dots will be the next line. Comma's can be interperted as a word
-  corpus <- tm_map(corpus, content_transformer(gsub), pattern = "\\. *", replacement = "\n")
   corpus <- tm_map(corpus, content_transformer(removePunctuationsExeptions))
   
   ## Removing double \n and \n at the beginning and end and putting it between spaces
@@ -126,14 +141,16 @@ corpusFilter <- function(corpus){
 # The function takes the data from the folder "sampleTrain" if it exists. Otherwise it will take directly from the raw data in "final/en_US/". See the paths file in the global map for the full paths
 createCorpus <- function(){
   
-  print("Creating Corpus object.")
-  
   if(file.exists(trainFolder))
     dirSource <- DirSource(trainFolder) else
       dirSource <- DirSource(originalDataFolder)
   
   dirSource$encoding <- "UTF-8"
+  
+  print("Creating Corpus object.")
   corpus <- Corpus(dirSource)
+  print("Creating Corpus object complete.")
+  
   
   # See above
   corpus <- corpusFilter(corpus)

@@ -46,7 +46,7 @@ createSampleDataDir(usePercentageOfData, seed)
 
 Reading the training sample data into a corpus is done using function "createCorpus". There was a great deal of filtering done in this function. The special characters and numbers were removed. The stopwords and conjugation words have deliberately been kept inside, so they can also be taken in account with the predictions. The most notable change I made was keeping all the "'" to preseve words such as "don't" and "I'm". Also, dots were replaced with a "\n" string. These denote the end and beginning of a senctence so they can also be processed in the prediction model. That way you can predict when a person will end the sentence, and make better preditions at the start of a sentence.
 ```{r createCorpus, cache = TRUE, results = 'hide'}
-corpus <- createCorpus(lang = "en_US")
+corpus <- createCorpus()
 tdm <- TermDocumentMatrix(corpus, control = list(wordLengths=c(0, Inf)))
 ```
 
@@ -133,7 +133,7 @@ object.size(freqModel) / 1024^2 # In megabytes
 
 Evaluation of the model is done by this function. It will take the data from the testing map, made in the first chapter with the createSampleDataDir function. It will take the fraction you want (or everything) and check word for word if it could have been predicted with the model provided.
 ```{r testModel1}
-testModel(freqModel, fraction = 0.1)
+testModel(freqModel, fraction = 0.01, loadingBar = FALSE)
 ```
 
 So the prediction is about 17%, which is not very impressive.
@@ -141,7 +141,7 @@ So the prediction is about 17%, which is not very impressive.
 The prediction succes can be higher by letting the prediction model give more options. If we change the model to give 5 possibilities instead of only 3, the succesrate goes up:
 ```{r testModel2}
 giveNumberOfPossibilities <- 5
-testModel(freqModel, fraction = 0.001)
+testModel(freqModel, fraction = 0.01, loadingBar = FALSE)
 ```
 
 For the next model I will have to check where the model fails and what can be done to improve it!

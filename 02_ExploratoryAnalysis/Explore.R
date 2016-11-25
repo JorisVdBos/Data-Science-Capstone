@@ -36,7 +36,7 @@ readTextsSample <- function(lines = 10, seed = 1){
   
   for(file in dataFiles){
     # Get amount of lines
-    con <- file(paste0(trainfolder, file), "r")
+    con <- file(paste0(trainFolder, "/", file), "r")
     fileLength <- length(readLines(con))
     close(con)
     
@@ -45,7 +45,7 @@ readTextsSample <- function(lines = 10, seed = 1){
     
     # Read the sampled lines
     sampleLines <- character()
-    con <- file(paste0(trainfolder, file), "r")
+    con <- file(paste0(trainFolder, "/", file), "r")
     for(i in 1:fileLength){
       lineRead <- readLines(con, 1)
       if(i %in% lineSamples)
