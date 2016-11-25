@@ -98,9 +98,9 @@ removePunctuationsExeptions <- function(x) {
   x <- gsub("[[:punct:]]+", "", x)
   
   # Re-install the saved punctuations
-  x <- gsub(" *000 *", " # ", x)
+  x <- gsub(" *000 *", " # ", x) 
   x <- gsub(" *001 *", " , ", x)
-  x <- gsub(" *002 *", " /n ", x)
+  x <- gsub(" *002 *", " \n ", x) # Dot is replaced by a New line
   x <- gsub(" *003 *", "'", x)
   x <- gsub(" *004 *", " ? ", x)
   x <- gsub(" *005 *", " ! ", x)
