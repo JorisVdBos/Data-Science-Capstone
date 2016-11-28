@@ -153,3 +153,4 @@ testModel(freqModel, fraction = 0.01, loadingBar = FALSE)
 ## Improving the model
 The model above has gone through various steps of improving the model. These changes were:
 - Adding sensitivity to numbers. Instead of dropping numbers altogether, they are converted to a single "#" character, which is - Adding sensitivity to "!" and "?"
+- Dropping all n-grams with freqency 1 from the model makes it a lot smaller in size, and even improves the accuracy a little.

@@ -6,7 +6,7 @@ if(!exists("loadedAllScripts"))
 testModel <- function(model, fraction = 0.1, seed = 1, validate = FALSE, loadingBar = TRUE){
   set.seed(seed)
   
-  if(fraction > 1 || fraction < 0) iconv <- 1
+  if(fraction > 1 || fraction < 0) fraction <- 1
   
   # Init
   score <- data.frame(totalInputs = c(0, 0, 0, 0), recommendedInputs = c(0, 0, 0, 0))
@@ -26,8 +26,6 @@ testModel <- function(model, fraction = 0.1, seed = 1, validate = FALSE, loading
   }
   
   for(file in dataFiles){
-    if(loadingBar)
-      pb <- txtProgressBar(style = 3)
     
     # Calculate which lines to read
     con <- file(paste0(trainFolder, "/", file), "r")
@@ -51,6 +49,9 @@ testModel <- function(model, fraction = 0.1, seed = 1, validate = FALSE, loading
     if(validate)
       conR <- file(paste0(validationFolder, "/", file), "r") else
         conR <- file(paste0(testFolder, "/", file), "r")
+    
+    if(loadingBar)
+      pb <- txtProgressBar(style = 3)
     
     for(i in 1:fileLengthTest){
       if(loadingBar)
@@ -78,12 +79,12 @@ testModel <- function(model, fraction = 0.1, seed = 1, validate = FALSE, loading
             word2 <- "\n"
           }
           
-          #print(paste("trying to predict", word, "from words", word1, "and", word2))
+          # print(paste("trying to predict", word, "from words", word1, "and", word2))
           
           predicted <- predict(model, word1, word2)$value
           
-          #print(paste("The options were"))
-          #print(predicted)
+          # print(paste("The options were"))
+          # print(predicted)
           
           if(word %in% predicted){
             #print("Prediction was a success!")

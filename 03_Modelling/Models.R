@@ -97,15 +97,17 @@ predict.FreqModel <- function(model, word1 = NULL, word2 = NULL){
 }
 
 # Create a model object
-createFreqModel <- function(corpus, tdm) {
+createFreqModel <- function(corpus, tdm, freqencyCutoff = 1) {
   # Create tables
   wordFreqTable <- wordFreq(tdm)
   wordFreqTable <- wordFreqTable[order(-freq)]
   n2grams <- ngramsFromCorpus(corpus, n = 2)
   n2gramsTable <- data.table(get.phrasetable(n2grams))
+  n2gramsTable <- n2gramsTable[freq > freqencyCutoff]
   n2gramsTable[, ngrams := gsub(" $", "", ngrams)]
   n3grams <- ngramsFromCorpus(corpus, n = 3)
   n3gramsTable <- data.table(get.phrasetable(n3grams))
+  n3gramsTable <- n3gramsTable[freq > freqencyCutoff]
   n3gramsTable[, ngrams := gsub(" $", "", ngrams)]
   
   # Converting the words to numbers

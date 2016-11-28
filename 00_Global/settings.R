@@ -5,7 +5,7 @@ seed <- 10
 
 # Reading data
 lang <- "en_US"   # Language
-usePercentageOfData <- 0.05
+usePercentageOfData <- 0.005
 
 # Modelling
 giveNumberOfPossibilities <- 3

@@ -13,7 +13,9 @@ modelInput <- function(string, mode = "model"){
   # Extra filtering
   
   # Split the string to return the last 2 words
-  string <- strsplit(string[[1]],split=" ")
+  if((class(string[[1]]) == "character")[1])
+    string <- strsplit(string[[1]],split=" ") else
+      string <- strsplit(string[[1]]$content,split=" ")
   
   if(mode == "testing") return(string[[1]]) else
     return(list(word1 = string[[1]][length(string[[1]])-1],
