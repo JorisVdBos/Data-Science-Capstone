@@ -111,7 +111,13 @@ ggplot(data= n3gramsTable) +
 # Modelling
 Modelling functions are found in the folder "03_Modelling".
 
-This first model I made, will search the freqency table of the 3-grams and takes the three (by default) options that are most frequent. If less than three options are found, it will look at the 2-grams table. If still no options are found, it will look at the most freqent words. That way, the model will always have a guess, even though it has nothing to go for. I have also included the source of the prediction to be returned.
+## Model input
+The model input is passed through the same filter as the corpus that was used to make the model. Here is an example of a conversion:
+```{r exampleString}
+removePunctuationsExeptions("His last album, \"The Great Escape\", has yet to see the light of day. \"I'm not even sure that album will come out under that title,\" he says. \"I do have the project completed and handed into E1\", his current record label. He says it could possibly hit in the fall.")
+```
+
+The model I made, will search the freqency table of the 3-grams and takes the three (by default) options that are most frequent. If less than three options are found, it will look at the 2-grams table. If still no options are found, it will look at the most freqent words. That way, the model will always have a guess, even though it has nothing to go for. I have also included the source of the prediction to be returned.
 ```{r model1Examples}
 freqModel <- createFreqModel(corpus, tdm)
 print(predict(freqModel, "then", "you"))
@@ -144,4 +150,6 @@ giveNumberOfPossibilities <- 5
 testModel(freqModel, fraction = 0.01, loadingBar = FALSE)
 ```
 
-For the next model I will have to check where the model fails and what can be done to improve it!
+## Improving the model
+The model above has gone through various steps of improving the model. These changes were:
+- Adding sensitivity to numbers. Instead of dropping numbers altogether, they are converted to a single "#" character, which is - Adding sensitivity to "!" and "?"

@@ -144,8 +144,10 @@ createFreqModel <- function(corpus, tdm) {
   # Reduce size by dropping all columns except the Index
   wordFreqTable <- wordFreqTable[order(-freq)]
   wordFreqTable <- wordFreqTable[,"word", with = FALSE]
+  n2gramsTable <- n2gramsTable[!is.na(n2gramsTable$freq)]
   n2gramsTable <- n2gramsTable[order(-freq)]
   n2gramsTable <- n2gramsTable[,c("indexWord1", "indexWord2"), with = FALSE]
+  n3gramsTable <- n3gramsTable[!is.na(n3gramsTable$freq)]
   n3gramsTable <- n3gramsTable[order(-freq)]
   n3gramsTable <- n3gramsTable[,c("indexWord1", "indexWord2", "indexWord3"), with = FALSE]
   

@@ -98,26 +98,26 @@ removePunctuationsExeptions <- function(x) {
   x <- gsub("[[:punct:]]+", "", x)
   
   # Re-install the saved punctuations
-  x <- gsub(" *000 *", " # ", x) 
+  x <- gsub("( *000)+ *", " # ", x) 
   x <- gsub(" *001 *", " , ", x)
   x <- gsub(" *002 *", " \n ", x) # Dot is replaced by a New line
   x <- gsub(" *003 *", "'", x)
   x <- gsub(" *004 *", " ? ", x)
   x <- gsub(" *005 *", " ! ", x)
-  x
+  
+  # Finally, convert to to lower case
+  tolower(x)
 }
+
 corpusFilter <- function(corpus){
-  ## Removing numbers
-  corpus <- tm_map(corpus, removeNumbers)
-  ## Punctuations: Dots will be the next line. Comma's can be interperted as a word
+  ## Punctuations: Dots will be the next line. Comma's can be interperted as a word, see above
   corpus <- tm_map(corpus, content_transformer(removePunctuationsExeptions))
   
   ## Removing double \n and \n at the beginning and end and putting it between spaces
-  corpus <- tm_map(corpus, content_transformer(gsub), pattern = " *[\n]+ *", replacement = " \n ")
-  corpus <- tm_map(corpus, content_transformer(gsub), pattern = "^( \n) | (\n )$", replacement = " ")
+  corpus <- tm_map(corpus, content_transformer(gsub), pattern = "$", replacement = " \n")
+  corpus <- tm_map(corpus, content_transformer(gsub), pattern = "^", replacement = "\n ")
+  corpus <- tm_map(corpus, content_transformer(gsub), pattern = " *(\n *)+", replacement = " \n ")
   corpus <- tm_map(corpus, content_transformer(gsub), pattern = " +", replacement = " ")
-  corpus <- tm_map(corpus, content_transformer(gsub), pattern = " $", replacement = "")
-  corpus <- tm_map(corpus, content_transformer(gsub), pattern = "^ ", replacement = "")
   
   # Some special character cases
   s <- "\u0091"
@@ -128,10 +128,6 @@ corpusFilter <- function(corpus){
   corpus <- tm_map(corpus, content_transformer(gsub), pattern = s, replacement = "")
   s <- "\u0094"
   corpus <- tm_map(corpus, content_transformer(gsub), pattern = s, replacement = "")
-  
-  
-  ## Converting all to lowercase
-  corpus <- tm_map(corpus, tolower)
   
   corpus
 }
@@ -145,7 +141,7 @@ createCorpus <- function(){
     dirSource <- DirSource(trainFolder) else
       dirSource <- DirSource(originalDataFolder)
   
-  dirSource$encoding <- "UTF-8"
+  dirSource$encoding <- "latin1"
   
   print("Creating Corpus object.")
   corpus <- Corpus(dirSource)
@@ -153,6 +149,7 @@ createCorpus <- function(){
   
   
   # See above
+  print("Structuring Corpus.")
   corpus <- corpusFilter(corpus)
   
   ## Make the corpus a text document

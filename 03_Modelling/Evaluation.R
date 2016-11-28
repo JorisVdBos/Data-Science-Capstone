@@ -13,6 +13,17 @@ testModel <- function(model, fraction = 0.1, seed = 1, validate = FALSE, loading
   row.names(score) <- c(dataFiles, "Total")
   recommended <- character()
   notRecommended <- character()
+  wordAccuracy <- data.frame()
+  
+  for(i in 1:giveNumberOfPossibilities){
+    if(i == 1){
+      wordAccuracy <- data.frame("word1" = 0)
+    } else {
+      tempDF <- data.frame(0)
+      names(tempDF)[1] = paste0("word", i)
+      wordAccuracy <- cbind(wordAccuracy, tempDF)
+    }
+  }
   
   for(file in dataFiles){
     if(loadingBar)
@@ -76,9 +87,15 @@ testModel <- function(model, fraction = 0.1, seed = 1, validate = FALSE, loading
           
           if(word %in% predicted){
             #print("Prediction was a success!")
+            correctWord <- which(word == predicted)
+            if(length(correctWord) == 1)
+              wordAccuracy[[paste0("word", correctWord)]] <-
+                wordAccuracy[[paste0("word", correctWord)]] + 1
+            
             score[file, "recommendedInputs"] <- score[file, "recommendedInputs"]  + 1
             score["Total", "recommendedInputs"] <- score["Total", "recommendedInputs"]  + 1
           } else {
+            # No extra counts
             #print("The predicted words did not contain the word.")
           }
         }
@@ -91,8 +108,9 @@ testModel <- function(model, fraction = 0.1, seed = 1, validate = FALSE, loading
   }
   
   score$percentageRecommended <- score$recommendedInputs / score$totalInputs
+  wordAccuracy <- wordAccuracy / score["Total", "totalInputs"]
   
   names(score) <- c("Words total", "Prediction success", "% successful prediction")
   
-  return(score)
+  return(list(score, wordAccuracy))
 }
