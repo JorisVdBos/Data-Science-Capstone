@@ -19,7 +19,7 @@ createSampleDataDir <- function(sampleSize = 1, seed = 1){
   if(file.exists(trainFolder)) rm(trainFolder)
   if(file.exists(testFolder)) rm(testFolder)
   if(file.exists(validateFolder)) rm(validateFolder)
-  percentageMap <- paste0(paste0(rawDataFolder, "/percentage", usePercentageOfData*100))
+  percentageMap <- paste0(paste0(tempDataFolder, "/percentage", usePercentageOfData*100))
   if(!file.exists(percentageMap)) dir.create(percentageMap)
   
   # Check sampleSize parameter

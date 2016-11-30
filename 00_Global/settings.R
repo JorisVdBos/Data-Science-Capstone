@@ -5,11 +5,12 @@ seed <- 10
 
 # Reading data
 lang <- "en_US"   # Language
-usePercentageOfData <- 0.005
+usePercentageOfData <- 0.05
 
 # Modelling
 giveNumberOfPossibilities <- 3
 
+doNotPredict <- c("#", "\n")
 
 
 
@@ -18,12 +19,13 @@ giveNumberOfPossibilities <- 3
 # Folders
 ##########################
 rawDataFolder <- "RawData"
+tempDataFolder <- "TempData"
 
 originalDataFolder <- paste0(rawDataFolder, "/final/", lang)
 
-trainFolder <- paste0(rawDataFolder, "/percentage", usePercentageOfData*100, "/sampleTrain")
-testFolder <- paste0(rawDataFolder, "/percentage", usePercentageOfData*100, "/sampleTest")
-validateFolder <- paste0(rawDataFolder, "/percentage", usePercentageOfData*100, "/sampleValidate")
+trainFolder <- paste0(tempDataFolder, "/percentage", usePercentageOfData*100, "/sampleTrain")
+testFolder <- paste0(tempDataFolder, "/percentage", usePercentageOfData*100, "/sampleTest")
+validateFolder <- paste0(tempDataFolder, "/percentage", usePercentageOfData*100, "/sampleValidate")
 
 # Filenames
 dataFiles <- paste0(lang, c(".blogs.txt", ".news.txt", ".twitter.txt"))
