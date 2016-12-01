@@ -14,6 +14,8 @@ testModel <- function(model, fraction = 0.1, seed = 1, validate = FALSE, loading
   recommended <- character()
   notRecommended <- character()
   wordAccuracy <- data.frame()
+  predictedWords <- character()
+  notPredictedWords <- character()
   
   for(i in 1:giveNumberOfPossibilities){
     if(i == 1){
@@ -61,8 +63,8 @@ testModel <- function(model, fraction = 0.1, seed = 1, validate = FALSE, loading
         # Split the line
         line <- iconv(line, to = "latin1")
         line <- modelInput(line, mode = "testing")
-        score["Total", "totalInputs"] <- score["Total", "totalInputs"]  + length(line)
-        score[file, "totalInputs"] <- score[file, "totalInputs"]  + length(line)
+        
+        # print(line)
         
         if(length(line) > 0)
         for(i in 1:length(line)){
@@ -87,7 +89,7 @@ testModel <- function(model, fraction = 0.1, seed = 1, validate = FALSE, loading
           # print(predicted)
           
           if(word %in% predicted){
-            #print("Prediction was a success!")
+            # print("Prediction was a success!")
             correctWord <- which(word == predicted)
             if(length(correctWord) == 1)
               wordAccuracy[[paste0("word", correctWord)]] <-
@@ -95,9 +97,17 @@ testModel <- function(model, fraction = 0.1, seed = 1, validate = FALSE, loading
             
             score[file, "recommendedInputs"] <- score[file, "recommendedInputs"]  + 1
             score["Total", "recommendedInputs"] <- score["Total", "recommendedInputs"]  + 1
+            score["Total", "totalInputs"] <- score["Total", "totalInputs"]  + 1
+            score[file, "totalInputs"] <- score[file, "totalInputs"]  + 1
+            predictedWords <- c(predictedWords, word)
+          } else if(word %in% doNotPredict || word == ""){
+            # print("The word was ignored.")
+            # Do nothing
           } else {
-            # No extra counts
-            #print("The predicted words did not contain the word.")
+            score["Total", "totalInputs"] <- score["Total", "totalInputs"]  + 1
+            score[file, "totalInputs"] <- score[file, "totalInputs"]  + 1
+            notPredictedWords <- c(notPredictedWords, word)
+            # print("The predicted words did not contain the word.")
           }
         }
       }
@@ -113,5 +123,8 @@ testModel <- function(model, fraction = 0.1, seed = 1, validate = FALSE, loading
   
   names(score) <- c("Words total", "Prediction success", "% successful prediction")
   
-  return(list(score, wordAccuracy))
+  return(list(score = score, 
+              wordAccuracy = wordAccuracy, 
+              predictedWords = data.table(table(predictedWords)), 
+              notPredictedWords = data.table(table(notPredictedWords))))
 }

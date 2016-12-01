@@ -6,6 +6,9 @@ source("03_Modelling/General.R")
 predict.FreqModel <- function(model, word1 = NULL, word2 = NULL){
   
   doNotPredictIndex <- which(model$wordFreqTable$word %in% doNotPredict)
+  
+  if("\n" %in% doNotPredict)
+    doNotPredictIndex <- c(0, doNotPredictIndex)
     
   # Check default giveNumberOfPossibilities
   if(is.null(giveNumberOfPossibilities)) giveNumberOfPossibilities <- 3
@@ -110,19 +113,19 @@ createFreqModel <- function(corpus, tdm, freqencyCutoff = 1, loadingBar = TRUE) 
   wordFreqTable <- wordFreq(tdm)
   wordFreqTable <- wordFreqTable[order(-freq)]
       if(loadingBar)
-        pb <- setTxtProgressBar(pb, 1/loadingSteps)
+       setTxtProgressBar(pb, 1/loadingSteps)
   n2grams <- ngramsFromCorpus(corpus, n = 2)
   n2gramsTable <- data.table(get.phrasetable(n2grams))
   n2gramsTable <- n2gramsTable[freq > freqencyCutoff]
   n2gramsTable[, ngrams := gsub(" $", "", ngrams)]
       if(loadingBar)
-        pb <- setTxtProgressBar(pb, 2/loadingSteps)
+       setTxtProgressBar(pb, 2/loadingSteps)
   n3grams <- ngramsFromCorpus(corpus, n = 3)
   n3gramsTable <- data.table(get.phrasetable(n3grams))
   n3gramsTable <- n3gramsTable[freq > freqencyCutoff]
   n3gramsTable[, ngrams := gsub(" $", "", ngrams)]
       if(loadingBar)
-        pb <- setTxtProgressBar(pb, 3/loadingSteps)
+       setTxtProgressBar(pb, 3/loadingSteps)
   
   # Converting the words to numbers
   wordFreqTable[, index := 1:length(wordFreqTable$word)]
@@ -130,7 +133,7 @@ createFreqModel <- function(corpus, tdm, freqencyCutoff = 1, loadingBar = TRUE) 
   wordFreqTable$word <- as.character(wordFreqTable$word)
   setkey(wordFreqTable, "word")
       if(loadingBar)
-        pb <- setTxtProgressBar(pb, 4/loadingSteps)
+       setTxtProgressBar(pb, 4/loadingSteps)
   
   n2gramsTable[, word1 := gsub(" .+", "", ngrams)]
   setkey(n2gramsTable, "word1")
@@ -138,7 +141,7 @@ createFreqModel <- function(corpus, tdm, freqencyCutoff = 1, loadingBar = TRUE) 
   setnames(n2gramsTable, "index", "indexWord1")
   
   if(loadingBar)
-    pb <- setTxtProgressBar(pb, 5/loadingSteps)
+   setTxtProgressBar(pb, 5/loadingSteps)
   
   n2gramsTable[, word2 := gsub(".+ ", "", ngrams)]
   setkey(n2gramsTable, "word2")
@@ -146,7 +149,7 @@ createFreqModel <- function(corpus, tdm, freqencyCutoff = 1, loadingBar = TRUE) 
   setnames(n2gramsTable, "index", "indexWord2")
   
   if(loadingBar)
-    pb <- setTxtProgressBar(pb, 6/loadingSteps)
+   setTxtProgressBar(pb, 6/loadingSteps)
   
   n3gramsTable[, word1 := gsub(" .+", "", ngrams)]
   setkey(n3gramsTable, "word1")
@@ -154,7 +157,7 @@ createFreqModel <- function(corpus, tdm, freqencyCutoff = 1, loadingBar = TRUE) 
   setnames(n3gramsTable, "index", "indexWord1")
   
   if(loadingBar)
-    pb <- setTxtProgressBar(pb, 7/loadingSteps)
+   setTxtProgressBar(pb, 7/loadingSteps)
   
   n3gramsTable[, word2 := sub("(['|\n|,|0-9A-Za-z]+)", "", ngrams)]
   n3gramsTable[, word2 := sub("^ ", "", word2)]
@@ -164,7 +167,7 @@ createFreqModel <- function(corpus, tdm, freqencyCutoff = 1, loadingBar = TRUE) 
   setnames(n3gramsTable, "index", "indexWord2")
   
   if(loadingBar)
-    pb <- setTxtProgressBar(pb, 8/loadingSteps)
+   setTxtProgressBar(pb, 8/loadingSteps)
   
   n3gramsTable[, word3 := gsub("^.+ ", "", ngrams)]
   setkey(n3gramsTable, "word3")
@@ -172,7 +175,7 @@ createFreqModel <- function(corpus, tdm, freqencyCutoff = 1, loadingBar = TRUE) 
   setnames(n3gramsTable, "index", "indexWord3")
   
   if(loadingBar)
-    pb <- setTxtProgressBar(pb, 9/loadingSteps)
+   setTxtProgressBar(pb, 9/loadingSteps)
   
   # Reduce size by dropping all columns except the Index
   wordFreqTable <- wordFreqTable[order(-freq)]
@@ -185,7 +188,7 @@ createFreqModel <- function(corpus, tdm, freqencyCutoff = 1, loadingBar = TRUE) 
   n3gramsTable <- n3gramsTable[,c("indexWord1", "indexWord2", "indexWord3"), with = FALSE]
   
   if(loadingBar)
-    pb <- setTxtProgressBar(pb, 10/loadingSteps)
+   setTxtProgressBar(pb, 10/loadingSteps)
   
   # Output
   output <- list(wordFreqTable = wordFreqTable, 
@@ -197,4 +200,37 @@ createFreqModel <- function(corpus, tdm, freqencyCutoff = 1, loadingBar = TRUE) 
     close(pb)
   
   output
+}
+
+createFreqModel2 <-  function(corpus, tdm, freqencyCutoff = 1, loadingBar = TRUE) {
+  model <- createFreqModel(corpus, tdm, freqencyCutoff = freqencyCutoff, loadingBar = loadingBar)
+  
+  n4grams <- ngramsFromCorpus(corpus, n = 4)
+  n4gramsTable <- data.table(get.phrasetable(n4grams))
+  n4gramsTable <- n4gramsTable[freq > freqencyCutoff]
+  n4gramsTable[, ngrams := gsub(" $", "", ngrams)]
+  
+  
+  n4gramsTable[, word2 := sub("(['|\n|,|0-9A-Za-z]+)", "", ngrams)]
+  n4gramsTable[, word2 := sub("^ ", "", word2)]
+  n4gramsTable[, word2 := sub(" .+", "", word2)]
+  setkey(n4gramsTable, "word2")
+  n4gramsTable <- n4gramsTable[wordFreqTable]
+  setnames(n4gramsTable, "index", "indexWord2")
+  
+  if(loadingBar)
+   setTxtProgressBar(pb, 8/loadingSteps)
+  
+  n4gramsTable[, word3 := gsub("^.+ ", "", ngrams)]
+  setkey(n4gramsTable, "word3")
+  n4gramsTable <- n4gramsTable[wordFreqTable]
+  setnames(n4gramsTable, "index", "indexWord3")
+  
+  n4gramsTable <- n4gramsTable[!is.na(n4gramsTable$freq)]
+  n4gramsTable <- n4gramsTable[order(-freq)]
+  n4gramsTable <- n4gramsTable[,c("indexWord1", "indexWord2", "indexWord3"), with = FALSE]
+  
+  
+  
+  model
 }

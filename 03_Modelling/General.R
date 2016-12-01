@@ -18,6 +18,6 @@ modelInput <- function(string, mode = "model"){
       string <- strsplit(string[[1]]$content,split=" ")
   
   if(mode == "testing") return(string[[1]]) else
-    return(list(word1 = string[[1]][length(string[[1]])-1],
-                word2 = string[[1]][length(string[[1]])]))
+    return(list(word1 = string[[1]][length(string[[1]])-2],
+                word2 = string[[1]][length(string[[1]])-1]))
 }
