@@ -19,7 +19,7 @@ titleWidth        <- 250
 ##############
 giveNumberOfPossibilities <- 3
 
-doNotPredict <- c("#", "\n")
+doNotPredict <- c("#", "\n", ",")
 
 ##############
 # Text

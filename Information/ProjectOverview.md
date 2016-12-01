@@ -362,4 +362,6 @@ testModel(freqModel, fraction = 0.01, loadingBar = FALSE)
 ## Total                    3467                875               0.2523796
 ```
 
-For the next model I will have to check where the model fails and what can be done to improve it!
+# Shiny app 
+The shiny app can be found [here](https://jorisvdbos.shinyapps.io/DataScienceTrackFinalProject/).
+The results are 

@@ -1,21 +1,19 @@
 shinyServer(function(input, output) {
   
+  # Reactive components
   prediction <- reactive({
-    giveNumberOfPossibilities <<- setNumberOfPossibilities()
+    giveNumberOfPossibilities <<- input$giveNoPos
     predict(freqModel, input$inputModel)
   })
   
-  setNumberOfPossibilities <- reactive({
-    input$giveNoPos
-  })
   
+  # Output text
   output$testText <- renderUI({
-    HTML(paste0("Prediction of ", setNumberOfPossibilities(), 
+    HTML(paste0("Prediction of ", input$giveNoPos, 
                 " possible next words to input \"", input$inputModel, 
                 "\" are: <br/><br/>",
                 paste(prediction()$value, collapse = "<br/>"))
     )
-    
   })
   
 })

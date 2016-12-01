@@ -11,5 +11,8 @@ The contents of the in this supository are ordered in these maps:
 - 01 Load: Contains the scripst of handling the raw data such as downloading, sampling, loading into R and also the cleaning of the data.
 - 02 Exploratory Analaysis: Functions regarding exploring the data for word freqency,etc. are found here
 - 03 Modelling: All the models and functions regarding the models (such as validations etc.) are found here
+- 04 Analysis: In here, scripts are saved dealing with analysis and testing of models
+- 05 ShinyAPP: All files regarding the shiny app
+- 06 Presentation: Finally, a presenation was made about all the steps taken towards the final model
 
 Thanks for reading! - Joris Van den Bossche

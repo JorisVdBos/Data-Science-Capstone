@@ -10,3 +10,5 @@ library(shinyjs)
 # Modelling
 library(data.table)
 library(DT)
+library(tm)
+library(ngram)

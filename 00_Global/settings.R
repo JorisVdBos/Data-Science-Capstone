@@ -10,7 +10,7 @@ usePercentageOfData <- 0.10
 # Modelling
 giveNumberOfPossibilities <- 3
 
-doNotPredict <- c("#", "\n")
+doNotPredict <- c("#", "\n", ",")
 
 
 
