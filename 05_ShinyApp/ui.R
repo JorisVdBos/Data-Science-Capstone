@@ -51,8 +51,7 @@ body <- dashboardBody(
                         placeholder = "Put text here!"),
               br(),
               br(),
-              "Model predictions:",
-              textOutput("testText")
+              htmlOutput("testText")
             )
     ),
     tabItem(tabName = "moreInfo", 
