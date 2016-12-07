@@ -96,9 +96,6 @@ A histogram of the freqency of the ngrams of length 2:
 ggplot(data= n2gramsTable) + 
   geom_freqpoly(aes(freq))
 ```
-```{r}
-
-```
 
 As expected, most n-grams are quite rare. The same for the n-grams of length 3:
 ```{r ngram3}

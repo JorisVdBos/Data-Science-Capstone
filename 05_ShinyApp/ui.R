@@ -40,18 +40,27 @@ body <- dashboardBody(
     tabItem(tabName = "model1",
             h1(model1Title),
             fluidPage(
-              sliderInput("giveNoPos",
-                          "Give top words:",
-                          min = 1,
-                          max = 20,
-                          value = 3),
-              br(),
-              textInput("inputModel", 
-                        label = NULL,
-                        placeholder = "Put text here!"),
-              br(),
-              br(),
-              htmlOutput("testText")
+              column(width = 6,
+                     textInput("inputModel", 
+                               label = NULL,
+                               placeholder = placeholderModelInfo),
+                     br(),
+                     htmlOutput("testText")
+              ),
+              column(4,
+                     wellPanel(
+                  sliderInput("giveNoPos",
+                              giveNoPosText,
+                              min = 1,
+                              max = 20,
+                              value = defaultNoPos),
+                  br(),
+                  filterText,
+                  checkboxInput("filterNumber", filterNumberText, value = TRUE, width = NULL),
+                  checkboxInput("filterEndline", filterEndlineText, value = TRUE, width = NULL),
+                  checkboxInput("filterComma", filterCommaText, value = TRUE, width = NULL)
+                )
+              )
             )
     ),
     tabItem(tabName = "moreInfo", 

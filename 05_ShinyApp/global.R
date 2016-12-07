@@ -11,4 +11,4 @@ for (script in list.files("configScripts")) {
 for (script in list.files("modelFunctions")) {
   source(file.path("modelFunctions", script))
 }
-load("modelObject/model10percent.RData")
+load(modelPath)

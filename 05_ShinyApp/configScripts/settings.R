@@ -17,15 +17,26 @@ titleWidth        <- 250
 ##############
 # Model settings
 ##############
-giveNumberOfPossibilities <- 3
+modelPath <- "modelObject/freqModel5perc.RData"
+defaultNoPos <- 3
 
 doNotPredict <- c("#", "\n", ",")
+
+##############
+# Buttons and slider texts
+##############
+giveNoPosText <- "Give top words:"
+placeholderModelInfo <- "Put text here!"
+filterText <- "Results filter"
+filterNumberText <- "Numbers"
+filterEndlineText <- "End line"
+filterCommaText <- "Comma's"
 
 ##############
 # Text
 ##############
 aboutText <- "<p>Welcome to the shiny application of my 'next word' predictor. This app was made for the final course of <a href = \"https://www.coursera.org/specializations/jhu-data-science\">Coursera's Data Science track, the data science capstone project</a>. </p> 
-<p>All files and more info regarding the construction of this app, can be found in <a href = \"https://github.com/JorisVdBos/Data-Science-Capstone\">the project's repository</a>.</p>
+<p>All files and more info regarding the construction of this app, can be found in <a href = \"https://github.com/JorisVdBos/Data-Science-Capstone\">the project's repository</a>. For more information about the setup and the creation of the model, take a look at <a href =  \"http://rpubs.com/JorisVdBos/228218\">the markdown I made</a>.</p>
 <br>
 <br>
 <p>This website was constructed in december 2016 by <a href=\"mailto:joris.vandenbossche@infofarm.be\">Joris Van den Bossche</a>.</p>
