@@ -70,6 +70,12 @@ wordFreqTable <- wordFreq(tdm)
 wordFreqTable[1:10, ] # The 10 most frequent words
 ```
 
+Just for the fun of it, let's create a word cloud:
+```{r}
+wordcloud(words = corpus, scale=c(3, 1), max.words=150, random.order=FALSE, 
+          rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(7,"Greens"), random.color = TRUE)
+```
+
 Most words only appear once, which was somewhat to be expected. The frequency is distributed as such:
 ```{r wordDensity}
 density <- wordFreqTable[, .(count = .N), by = freq]
@@ -120,10 +126,10 @@ removePunctuationsExeptions("His last album, \"The Great Escape\", has yet to se
 The model I made, will search the freqency table of the 3-grams and takes the three (by default) options that are most frequent. If less than three options are found, it will look at the 2-grams table. If still no options are found, it will look at the most freqent words. That way, the model will always have a guess, even though it has nothing to go for. I have also included the source of the prediction to be returned.
 ```{r model1Examples}
 freqModel <- createFreqModel(corpus, tdm, loadingBar = FALSE)
-print(predict(freqModel, "then", "you"))
-print(predict(freqModel, "sometimes", "you"))
-print(predict(freqModel, "xnjiqqfqsf", "you"))
-print(predict(freqModel, "xnjiqqfqsf", "nqnjndjiqpdns"))
+print(predict(freqModel, "then you "))
+print(predict(freqModel, "sometimes you "))
+print(predict(freqModel, "xnjiqqfqsf you "))
+print(predict(freqModel, "xnjiqqfqsf nqnjndjiqpdns "))
 ```
 
 To save space, the words were stored as an ordered data table. This way, they all have an unique index number, which can be used as quick lookup table for the words. The 2 and 3-grams are also ordered lists with the more prevalent combinations at the top. The downside of this model is that you cannot add new entries to it, because it cannot determine anymore if the new combinations are more prevalent than the allready existing ones in it. This can be fixed to add a new row to all tables with the freqencies but this was not part of the scope (for now).
@@ -139,7 +145,9 @@ object.size(freqModel) / 1024^2 # In megabytes
 
 Evaluation of the model is done by this function. It will take the data from the testing map, made in the first chapter with the createSampleDataDir function. It will take the fraction you want (or everything) and check word for word if it could have been predicted with the model provided.
 ```{r testModel1}
-testModel(freqModel, fraction = 0.01, loadingBar = FALSE)
+test <- testModel(freqModel, fraction = 0.01, loadingBar = FALSE)
+test$score
+test$wordAccuracy
 ```
 
 So the prediction is about 17%, which is not very impressive.
@@ -147,10 +155,14 @@ So the prediction is about 17%, which is not very impressive.
 The prediction succes can be higher by letting the prediction model give more options. If we change the model to give 5 possibilities instead of only 3, the succesrate goes up:
 ```{r testModel2}
 giveNumberOfPossibilities <- 5
-testModel(freqModel, fraction = 0.01, loadingBar = FALSE)
+test <- testModel(freqModel, fraction = 0.005, loadingBar = FALSE)
+test$score
+test$wordAccuracy
 ```
 
 ## Improving the model
 The model above has gone through various steps of improving the model. These changes were:
-- Adding sensitivity to numbers. Instead of dropping numbers altogether, they are converted to a single "#" character, which is - Adding sensitivity to "!" and "?"
-- Dropping all n-grams with freqency 1 from the model makes it a lot smaller in size, and even improves the accuracy a little.
+
+* Adding sensitivity to numbers. Instead of dropping numbers altogether, they are converted to a single "#" character, which is - Adding sensitivity to "!" and "?"
+* Dropping all n-grams with freqency 1 from the model makes it a lot smaller in size, and even improves the accuracy a little.
+* Adding a filter to the predictions that allows for filtering to the first word (for example "I love y" will subset the prediction to all words starting with "y")

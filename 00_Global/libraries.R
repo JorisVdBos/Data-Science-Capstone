@@ -7,6 +7,7 @@ library(SnowballC)
 library(Rgraphviz)
 library(ngram)
 library(RWeka)
+library(wordcloud)
 
 # Source files
 loadedAllScripts <- FALSE

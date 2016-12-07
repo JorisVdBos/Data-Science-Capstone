@@ -82,8 +82,7 @@ testModel <- function(model, fraction = 0.1, seed = 1, validate = FALSE, loading
           }
           
           # print(paste("trying to predict", word, "from words", word1, "and", word2))
-          
-          predicted <- predict(model, word1, word2)$value
+          predicted <- predict(model, paste0(word1, " ", word2, " "))$value
           
           # print(paste("The options were"))
           # print(predicted)

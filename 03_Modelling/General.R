@@ -1,13 +1,15 @@
 # Filter an input string to an input into a model. This is basically the last two words, with the same filters used to make the string
 modelInput <- function(string, mode = "model"){
   # Check input
-  if(length(string) == 0 || string == "") 
+  if(length(string) == 0 || 
+     string == "")
     return(list(word1 = "\n",
                 word2 = "\n"))
   
   
   # Pre filtering
   string <- gsub(" $", "", string)
+  string <- gsub("\n", ".", string)
   
   # Make the string a corpus
   Encoding(string) <- "UTF-8"
@@ -22,9 +24,18 @@ modelInput <- function(string, mode = "model"){
     string <- strsplit(string[[1]],split=" ") else
       string <- strsplit(string[[1]]$content,split=" ")
   
-  if(mode == "testing") return(string[[1]]) else
-    return(list(word1 = string[[1]][length(string[[1]])-2],
-                word2 = string[[1]][length(string[[1]])-1]))
+  word1 <- string[[1]][length(string[[1]])-2]
+  word2 <- string[[1]][length(string[[1]])-1]
+  if(length(word1) == 0 || 
+     word1 == "")
+    word1 <- "\n"
+  if(length(word2) == 0 || 
+     word2 == "")
+    word2 <- "\n"
+  
+  if(mode == "testing") return(string[[1]][3:length(string[[1]])]) else
+    return(list(word1 = word1,
+                word2 = word2))
 }
 
 

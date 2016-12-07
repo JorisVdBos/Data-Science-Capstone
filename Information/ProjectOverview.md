@@ -105,6 +105,15 @@ wordFreqTable[1:10, ] # The 10 most frequent words
 ## 10:   is  4046
 ```
 
+Just for the fun of it, let's create a word cloud:
+
+```r
+wordcloud(words = corpus, scale=c(3, 1), max.words=150, random.order=FALSE, 
+          rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(7,"Greens"), random.color = TRUE)
+```
+
+![](ProjectOverview_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+
 Most words only appear once, which was somewhat to be expected. The frequency is distributed as such:
 
 ```r
@@ -195,51 +204,62 @@ ggplot(data= n3gramsTable) +
 # Modelling
 Modelling functions are found in the folder "03_Modelling".
 
-This first model I made, will search the freqency table of the 3-grams and takes the three (by default) options that are most frequent. If less than three options are found, it will look at the 2-grams table. If still no options are found, it will look at the most freqent words. That way, the model will always have a guess, even though it has nothing to go for. I have also included the source of the prediction to be returned.
+## Model input
+The model input is passed through the same filter as the corpus that was used to make the model. Here is an example of a conversion:
 
 ```r
-freqModel <- createFreqModel(corpus, tdm)
-print(predict(freqModel, "then", "you"))
+removePunctuationsExeptions("His last album, \"The Great Escape\", has yet to see the light of day. \"I'm not even sure that album will come out under that title,\" he says. \"I do have the project completed and handed into E1\", his current record label. He says it could possibly hit in the fall.")
 ```
 
 ```
-##     value       source
-## 1:  gotta n3gramsTable
-## 2:     \n n3gramsTable
-## 3: called n3gramsTable
+## [1] "his last album , the great escape , has yet to see the light of day \n i'm not even sure that album will come out under that title , he says \n i do have the project completed and handed into e # , his current record label \n he says it could possibly hit in the fall \n "
 ```
+
+The model I made, will search the freqency table of the 3-grams and takes the three (by default) options that are most frequent. If less than three options are found, it will look at the 2-grams table. If still no options are found, it will look at the most freqent words. That way, the model will always have a guess, even though it has nothing to go for. I have also included the source of the prediction to be returned.
 
 ```r
-print(predict(freqModel, "sometimes", "you"))
+freqModel <- createFreqModel(corpus, tdm, loadingBar = FALSE)
+print(predict(freqModel, "then you "))
 ```
 
 ```
 ##    value       source
-## 1:   get n3gramsTable
-## 2:  have n3gramsTable
-## 3:  weep n3gramsTable
+## 1: gotta n3gramsTable
+## 2:   can  2gramsTable
+## 3:  have  2gramsTable
 ```
 
 ```r
-print(predict(freqModel, "xnjiqqfqsf", "you"))
+print(predict(freqModel, "sometimes you "))
 ```
 
 ```
 ##    value      source
-## 1:    \n 2gramsTable
-## 2:   can 2gramsTable
-## 3:  have 2gramsTable
+## 1:   can 2gramsTable
+## 2:  have 2gramsTable
+## 3:   are 2gramsTable
 ```
 
 ```r
-print(predict(freqModel, "xnjiqqfqsf", "nqnjndjiqpdns"))
+print(predict(freqModel, "xnjiqqfqsf you "))
+```
+
+```
+##    value      source
+## 1:   can 2gramsTable
+## 2:  have 2gramsTable
+## 3:   are 2gramsTable
+```
+
+```r
+print(predict(freqModel, "xnjiqqfqsf nqnjndjiqpdns "))
 ```
 
 ```
 ##    value            source
 ## 1:   the wordFreqencyTable
-## 2:     , wordFreqencyTable
-## 3:    to wordFreqencyTable
+## 2:    to wordFreqencyTable
+## 3:     a wordFreqencyTable
 ```
 
 To save space, the words were stored as an ordered data table. This way, they all have an unique index number, which can be used as quick lookup table for the words. The 2 and 3-grams are also ordered lists with the more prevalent combinations at the top. The downside of this model is that you cannot add new entries to it, because it cannot determine anymore if the new combinations are more prevalent than the allready existing ones in it. This can be fixed to add a new row to all tables with the freqencies but this was not part of the scope (for now).
@@ -264,32 +284,32 @@ freqModel
 ## 29748:            \n
 ## 
 ## $n2gramsTable
-##         indexWord1 indexWord2
-##      1:          0          6
-##      2:          7          1
-##      3:          8          1
-##      4:          0          1
-##      5:          2          5
-##     ---                      
-## 180172:        263      29745
-## 180173:          5      29746
-## 180174:          4      29747
-## 180175:         NA      13645
-## 180176:         NA      18006
+##        indexWord1 indexWord2
+##     1:          0          6
+##     2:          7          1
+##     3:          8          1
+##     4:          0          1
+##     5:          2          5
+##    ---                      
+## 36547:          5       7057
+## 36548:       1931       3527
+## 36549:       1590       4366
+## 36550:          1       9075
+## 36551:          8      13123
 ## 
 ## $n3gramsTable
-##         indexWord1 indexWord2 indexWord3
-##      1:          0         85         11
-##      2:          0          6         20
-##      3:          0          6         68
-##      4:          0          6         86
-##      5:          0        170          9
-##     ---                                 
-## 324060:       4055          8      13123
-## 324061:         52          8      13123
-## 324062:      16166          5      29746
-## 324063:         16          4      29747
-## 324064:         NA         NA      19291
+##        indexWord1 indexWord2 indexWord3
+##     1:          0         85         11
+##     2:          0          6         20
+##     3:          0          6         68
+##     4:          0          6         86
+##     5:          0        170          9
+##    ---                                 
+## 24154:          7          1       1904
+## 24155:         71        355       1905
+## 24156:        400          2       5854
+## 24157:          1       3506       3527
+## 24158:        841       1590       4366
 ## 
 ## attr(,"class")
 ## [1] "list"      "FreqModel"
@@ -302,7 +322,7 @@ object.size(freqModel)
 ```
 
 ```
-## 13159760 bytes
+## 3089520 bytes
 ```
 
 ```r
@@ -310,13 +330,13 @@ object.size(freqModel) / 1024^2 # In megabytes
 ```
 
 ```
-## 12.5501251220703 bytes
+## 2.94639587402344 bytes
 ```
 
 Evaluation of the model is done by this function. It will take the data from the testing map, made in the first chapter with the createSampleDataDir function. It will take the fraction you want (or everything) and check word for word if it could have been predicted with the model provided.
 
 ```r
-testModel(freqModel, fraction = 0.01, loadingBar = FALSE)
+test <- testModel(freqModel, fraction = 0.01, loadingBar = FALSE)
 ```
 
 ```
@@ -328,12 +348,25 @@ testModel(freqModel, fraction = 0.01, loadingBar = FALSE)
 ## [1] "Total testing lines for en_US.twitter.txt is 118"
 ```
 
+```r
+test$score
+```
+
 ```
 ##                   Words total Prediction success % successful prediction
-## en_US.blogs.txt          1768                376               0.2126697
-## en_US.news.txt            179                 32               0.1787709
-## en_US.twitter.txt        1520                273               0.1796053
-## Total                    3467                681               0.1964234
+## en_US.blogs.txt          1652                343               0.2076271
+## en_US.news.txt            163                 21               0.1288344
+## en_US.twitter.txt        1485                286               0.1925926
+## Total                    3300                650               0.1969697
+```
+
+```r
+test$wordAccuracy
+```
+
+```
+##       word1      word2      word3
+## 1 0.1178788 0.04818182 0.03090909
 ```
 
 So the prediction is about 17%, which is not very impressive.
@@ -342,26 +375,42 @@ The prediction succes can be higher by letting the prediction model give more op
 
 ```r
 giveNumberOfPossibilities <- 5
-testModel(freqModel, fraction = 0.01, loadingBar = FALSE)
+test <- testModel(freqModel, fraction = 0.005, loadingBar = FALSE)
 ```
 
 ```
 ## [1] "Total training lines for en_US.blogs.txt was 4496"
-## [1] "Total testing lines for en_US.blogs.txt is 44"
+## [1] "Total testing lines for en_US.blogs.txt is 22"
 ## [1] "Total training lines for en_US.news.txt was 386"
-## [1] "Total testing lines for en_US.news.txt is 3"
+## [1] "Total testing lines for en_US.news.txt is 1"
 ## [1] "Total training lines for en_US.twitter.txt was 11800"
-## [1] "Total testing lines for en_US.twitter.txt is 118"
+## [1] "Total testing lines for en_US.twitter.txt is 59"
+```
+
+```r
+test$score
 ```
 
 ```
 ##                   Words total Prediction success % successful prediction
-## en_US.blogs.txt          1768                477               0.2697964
-## en_US.news.txt            179                 42               0.2346369
-## en_US.twitter.txt        1520                356               0.2342105
-## Total                    3467                875               0.2523796
+## en_US.blogs.txt          1022                264               0.2583170
+## en_US.news.txt             57                 12               0.2105263
+## en_US.twitter.txt         824                184               0.2233010
+## Total                    1903                460               0.2417236
 ```
 
-# Shiny app 
-The shiny app can be found [here](https://jorisvdbos.shinyapps.io/DataScienceTrackFinalProject/).
-The results are 
+```r
+test$wordAccuracy
+```
+
+```
+##      word1      word2      word3      word4      word5
+## 1 0.112454 0.04308986 0.03205465 0.03415659 0.01996847
+```
+
+## Improving the model
+The model above has gone through various steps of improving the model. These changes were:
+
+* Adding sensitivity to numbers. Instead of dropping numbers altogether, they are converted to a single "#" character, which is - Adding sensitivity to "!" and "?"
+* Dropping all n-grams with freqency 1 from the model makes it a lot smaller in size, and even improves the accuracy a little.
+* Adding a filter to the predictions that allows for filtering to the first word (for example "I love y" will subset the prediction to all words starting with "y")
