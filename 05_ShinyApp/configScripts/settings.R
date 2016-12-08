@@ -17,7 +17,8 @@ titleWidth        <- 250
 ##############
 # Model settings
 ##############
-modelPath <- "modelObject/freqModel5perc.RData"
+freqModelPath <- "modelObject/freqModel5perc.RData"
+KNModelPath <- "modelObject/KNModel5perc.RData"
 defaultNoPos <- 3
 
 doNotPredict <- c("#", "\n", ",")

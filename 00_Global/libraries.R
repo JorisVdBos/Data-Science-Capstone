@@ -1,3 +1,6 @@
+# Clear all
+rm(list = ls())
+
 # Libraries
 library(data.table)
 library(ggplot2)

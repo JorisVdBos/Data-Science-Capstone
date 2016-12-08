@@ -2,6 +2,21 @@
 # Ref: http://u.cs.biu.ac.il/~yogo/courses/mt2013/papers/chen-goodman-99.pdf
 createKNModel <- function(corpus, tdm = NULL, freqencyCutoff = 1, loadingBar = TRUE) {
   
+  
+  # Check previously made model
+  if(file.exists(trainFolder))
+    folder <- trainFolder else
+      folder <- originalDataFolder
+    
+  if(file.exists(paste0(folder, "/KNModel.RData"))){
+    print(paste("Loading KNModel object from", paste0(folder, "/KNModel.RData")))
+    load(paste0(folder, "/KNModel.RData"))
+    
+    return(KNModel)
+  }
+  
+  print("Creating Kneser-Ney model.")
+    
   if(is.null(tdm)){
     print("creating tdm...")
     tdm <- TermDocumentMatrix(corpus, control = list(wordLengths=c(0, Inf)))
@@ -104,15 +119,16 @@ createKNModel <- function(corpus, tdm = NULL, freqencyCutoff = 1, loadingBar = T
     setTxtProgressBar(pb, 10/loadingSteps)
   
   # Output
-  output <- list(wordFreqTable = wordFreqTable, 
+  KNModel <- list(wordFreqTable = wordFreqTable, 
                  n2gramsTable = n2gramsTable, 
                  n3gramsTable = n3gramsTable)
-  class(output) <- append(class(output),"KNModel")
+  class(KNModel) <- append(class(KNModel),"KNModel")
   
   if(loadingBar)
     close(pb)
   
-  output
+  save(KNModel, file = paste0(folder, "/KNModel.RData"))
+  return(KNModel)
 }
 
 # Prediction function

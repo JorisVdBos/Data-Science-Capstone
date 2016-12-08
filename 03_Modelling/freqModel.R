@@ -5,6 +5,20 @@ source("03_Modelling/General.R")
 # This first model looks at the freqency table of the 3-grams and takes the three options that are most frequent. If less than three options are found, it will look at the 2-grams table
 createFreqModel <- function(corpus, tdm = NULL, freqencyCutoff = 1, loadingBar = TRUE) {
   
+  # Check previously made model
+  if(file.exists(trainFolder))
+    folder <- trainFolder else
+      folder <- originalDataFolder
+    
+  if(file.exists(paste0(folder, "/freqModel.RData"))){
+    print(paste("Loading freqModel object from", paste0(folder, "/freqModel.RData")))
+    load(paste0(folder, "/freqModel.RData"))
+    
+    return(freqModel)
+  }
+    
+  print("Creating freqency based model.")
+  
   if(is.null(tdm)){
     print("creating tdm...")
     tdm <- TermDocumentMatrix(corpus, control = list(wordLengths=c(0, Inf)))
@@ -99,15 +113,16 @@ createFreqModel <- function(corpus, tdm = NULL, freqencyCutoff = 1, loadingBar =
    setTxtProgressBar(pb, 10/loadingSteps)
   
   # Output
-  output <- list(wordFreqTable = wordFreqTable, 
+  freqModel <- list(wordFreqTable = wordFreqTable, 
                  n2gramsTable = n2gramsTable, 
                  n3gramsTable = n3gramsTable)
-  class(output) <- append(class(output),"FreqModel")
+  class(freqModel) <- append(class(freqModel),"FreqModel")
   
   if(loadingBar)
     close(pb)
   
-  output
+  save(freqModel, file = paste0(folder, "/freqModel.RData"))
+  return(freqModel)
 }
 
 # Prediction function

@@ -39,43 +39,17 @@ modelInput <- function(string, mode = "model"){
 }
 
 
-# Prediction function
+# Prediction function freqModel
 predict.FreqModel <- function(model, string = NULL){
   
-  # Check if the input ends with a space. If not, we can try to match
-  # the partial word
-  if(length(grep(" $", string)) == 0 && string != ""){
-    predictPart <- TRUE
-    
-    # Get third 3 partial and indices
-    inputWord3Part <- strsplit(string, split = " ")[[1]]
-    inputWord3Part <- inputWord3Part[length(inputWord3Part)]
-    inputWord3Part <- modelInput(inputWord3Part)$word2
-    inputWord3PartIndices <- grep(paste0("^", inputWord3Part), model$wordFreqTable$word)
-    
-    # Remove word from input string
-    string <- gsub(paste0(" ", inputWord3Part, "$"), "", string)
-  } else {
-    predictPart <- FALSE
-  }
+  input <- predictionInput(model, string)
   
-  # Find which indices are off limits
-  doNotPredictIndex <- which(model$wordFreqTable$word %in% doNotPredict)
-  if("\n" %in% doNotPredict)
-    doNotPredictIndex <- c(0, doNotPredictIndex)
-  
-  # Check default giveNumberOfPossibilities
-  if(is.null(giveNumberOfPossibilities)) giveNumberOfPossibilities <- 3
-  
-  # Post filtering
-  word1 <- modelInput(string)$word1
-  word2 <- modelInput(string)$word2
-  
-  # Finding input word indices
-  if(word1 == "\n") inputWord1Index <- 0 else
-    inputWord1Index <- which(model$wordFreqTable$word == word1)
-  if(length(word2) == 0 || word2 == "\n") inputWord2Index <- 0 else
-    inputWord2Index <- which(model$wordFreqTable$word == word2)
+  inputWord1Index <- input$inputWord1Index
+  inputWord2Index  <- input$inputWord2Index
+  predictPart <- input$predictPart
+  inputWord3Part <- input$inputWord3Part
+  inputWord3PartIndices <- input$inputWord3PartIndices
+  doNotPredictIndex <- input$doNotPredictIndex
   
   # Find solutions in the 3-grams table
   solutions <- model$n3gramsTable[indexWord1 == inputWord1Index & indexWord2 == inputWord2Index]
@@ -156,4 +130,75 @@ predict.FreqModel <- function(model, string = NULL){
   
   # Return solutions vector
   solutions
+}
+
+# Prediction function KNModel
+predict.KNModel <- function(model, string = NULL){
+  
+  input <- predictionInput(model, string)
+  
+  inputWord1Index <- input$inputWord1Index
+  inputWord2Index  <- input$inputWord2Index
+  predictPart <- input$predictPart
+  inputWord3Part <- input$inputWord3Part
+  inputWord3PartIndices <- input$inputWord3PartIndices
+  doNotPredictIndex <- input$doNotPredictIndex
+  
+  # Calculate probabilities from the 2-grams
+  solutions2grams <- model$n2gramsTable[indexWord1 == inputWord2Index]
+  total3grams <- dim(model$n3gramsTable[indexWord2 == inputWord2Index])[1]
+  part3grams <- sapply(solutions2grams$indexWord2, 
+                       function(x) dim(model$n3gramsTable[indexWord2 == inputWord2Index &
+                                                            indexWord3 == x])[1])
+  if(length(part3grams) != 0)
+    solutions2grams$prob <- part3grams/total3grams else
+      solutions2grams[, prob := freq]
+  
+  # Calculate probabilities from the 3-grams
+  solutions3grams <- model$n3gramsTable[indexWord2 == inputWord2Index & 
+                                          indexWord1 == inputWord1Index]
+  matched3gramsCount <- sum(model$n3gramsTable[indexWord2 == inputWord2Index &
+                                                 indexWord1 == inputWord1Index]$freq)
+  count2graminput <- max(sum(model$n3gramsTable[indexWord1 == inputWord1Index & 
+                                                  indexWord2 == inputWord2Index]$freq) - kneserNeyAbsDiscount,
+                         0)
+  total3gramsInput <- dim(model$n3gramsTable[indexWord1 == inputWord1Index &
+                                               indexWord2 == inputWord2Index])[1]
+  
+  prob2gram <- solutions2grams[indexWord2 %in% solutions3grams$indexWord3]$prob
+  
+  solutions3grams$prob <- (count2graminput/matched3gramsCount) + 
+    (kneserNeyAbsDiscount/matched3gramsCount)*total3gramsInput*prob2gram
+  
+  
+  # Get solutions from 1-grams
+  solutionsFreq <- model$wordFreqTable[order(-freq)][1:(3*giveNumberOfPossibilities)]
+  
+  # Compare all probabilities and choose the top scoring
+  solutions2grams <- solutions2grams[, c("indexWord2", "prob"), with = FALSE]
+  names(solutions2grams) <- c("sol", "prob")
+  solutions3grams <- solutions3grams[, c("indexWord3", "prob"), with = FALSE]
+  names(solutions3grams) <- c("sol", "prob")
+  solutionsFreq <- solutionsFreq[, c("index", "prob"), with = FALSE]
+  names(solutionsFreq) <- c("sol", "prob")
+  
+  solution <- solutions3grams
+  solution <- rbind(solution, 
+                    solutions2grams[!(sol %in% solution$sol)])
+  solution <- rbind(solution, 
+                    solutionsFreq[!(sol %in% solution$sol)])
+  solution <- solution[!(sol %in% doNotPredictIndex)]
+  solution <- solution[order(-prob)][1:giveNumberOfPossibilities]
+  names(solution) <- c("value", "prob")
+  
+  # Construct solution data frame
+  getWord <- function(index){
+    if(is.na(index))
+      return(NA)
+    if(index == 0) return("\n") else
+      return(model$wordFreqTable[index, "word", with = FALSE]$word)
+  }
+  solution[, value := sapply(solution$value, function(x) getWord(x))]
+  
+  return(solution)
 }

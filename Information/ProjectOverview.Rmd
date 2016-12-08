@@ -47,7 +47,7 @@ createSampleDataDir(usePercentageOfData, seed)
 Reading the training sample data into a corpus is done using function "createCorpus". There was a great deal of filtering done in this function. The special characters and numbers were removed. The stopwords and conjugation words have deliberately been kept inside, so they can also be taken in account with the predictions. The most notable change I made was keeping all the "'" to preseve words such as "don't" and "I'm". Also, dots were replaced with a "\n" string. These denote the end and beginning of a senctence so they can also be processed in the prediction model. That way you can predict when a person will end the sentence, and make better preditions at the start of a sentence.
 ```{r createCorpus, cache = TRUE, results = 'hide'}
 corpus <- createCorpus()
-tdm <- TermDocumentMatrix(corpus, control = list(wordLengths=c(0, Inf)))
+tdm <- createTdm()
 ```
 
 

@@ -45,7 +45,10 @@ body <- dashboardBody(
                                label = NULL,
                                placeholder = placeholderModelInfo),
                      br(),
-                     htmlOutput("testText")
+                     column(6,
+                            htmlOutput("freqModelTest")),
+                     column(6,
+                            htmlOutput("KNModelTest"))
               ),
               column(4,
                      wellPanel(

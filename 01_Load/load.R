@@ -144,8 +144,14 @@ corpusFilter <- function(corpus){
 # The function takes the data from the folder "sampleTrain" if it exists. Otherwise it will take directly from the raw data in "final/en_US/". See the paths file in the global map for the full paths
 createCorpus <- function(){
   
-  if(file.exists(trainFolder))
-    dirSource <- DirSource(trainFolder) else
+  if(file.exists(trainFolder)) {
+    if(file.exists(paste0(trainFolder, "/corpus.RData"))){
+      print(paste("Loading corpus object from", paste0(trainFolder, "/corpus.RData")))
+      load(paste0(trainFolder, "/corpus.RData"))
+      return(corpus)
+    } else
+      dirSource <- DirSource(trainFolder)
+  } else
       dirSource <- DirSource(originalDataFolder)
   
   dirSource$encoding <- "latin1"
@@ -164,5 +170,31 @@ createCorpus <- function(){
   
   print("Done!")
   
+  if(file.exists(trainFolder))
+    save(corpus, file = paste0(trainFolder, "/corpus.RData")) else
+      save(corpus, file = paste0(originalDataFolder, "/corpus.RData"))
+  
   corpus
+}
+
+# Create term document matrix object
+createTdm <- function(corpus = NULL){
+  if(file.exists(trainFolder))
+    folder <- trainFolder else
+      folder <- originalDataFolder
+  
+  if(file.exists(paste0(folder, "/tdm.RData"))){
+    print(paste("Loading tdm object from", paste0(folder, "/tdm.RData")))
+    load(paste0(folder, "/tdm.RData"))
+    
+    save(tdm, file = paste0(folder, "/tdm.RData"))
+    return(tdm)
+  }
+    
+  if(is.null(corpus))
+    corpus <- createCorpus()
+  tdm <- TermDocumentMatrix(corpus, control = list(wordLengths=c(0, Inf)))
+  
+  save(tdm, file = paste0(folder, "/tdm.RData"))
+  return(tdm)
 }
