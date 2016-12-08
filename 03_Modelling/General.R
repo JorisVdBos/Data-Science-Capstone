@@ -38,9 +38,8 @@ modelInput <- function(string, mode = "model"){
                 word2 = word2))
 }
 
-
-# Prediction function
-predict.FreqModel <- function(model, string = NULL){
+# Predicted input string filter
+predictionInput <- function(model, string){
   
   # Check if the input ends with a space. If not, we can try to match
   # the partial word
@@ -56,6 +55,8 @@ predict.FreqModel <- function(model, string = NULL){
     # Remove word from input string
     string <- gsub(paste0(" ", inputWord3Part, "$"), "", string)
   } else {
+    inputWord3Part <- character()
+    inputWord3PartIndices <- integer()
     predictPart <- FALSE
   }
   
@@ -77,83 +78,10 @@ predict.FreqModel <- function(model, string = NULL){
   if(length(word2) == 0 || word2 == "\n") inputWord2Index <- 0 else
     inputWord2Index <- which(model$wordFreqTable$word == word2)
   
-  # Find solutions in the 3-grams table
-  solutions <- model$n3gramsTable[indexWord1 == inputWord1Index & indexWord2 == inputWord2Index]
-  
-  # Filter solutions
-  if(predictPart)
-    solutions <- solutions[indexWord3 %in% inputWord3PartIndices]
-  solutions <- solutions[!(indexWord3 %in% doNotPredictIndex)]
-  
-  # Take the first three solutions
-  solutions <- data.table(value = solutions$indexWord3[1:giveNumberOfPossibilities])
-  
-  solutions$source <- rep("n3gramsTable", giveNumberOfPossibilities)
-  
-  # Find more solutions in the 2-grams table if necessairy
-  findMore <- sum(is.na(solutions$value))
-  if(findMore > 0){
-    sol2gram <- model$n2gramsTable[indexWord1 == inputWord2Index]$indexWord2
-    
-    # Filter partial
-    if(predictPart)
-      sol2gram <- intersect(sol2gram, inputWord3PartIndices)
-    
-    k <- 1
-    for(i in 1:findMore){
-      sol <- sol2gram[k]
-      
-      # Check if the found solutions has allready been found in the 3-gram before
-      while((sol %in% solutions$value) || 
-            (sol %in% doNotPredictIndex)){
-        k <- k + 1
-        sol <- sol2gram[k]
-        if(is.na(sol)) break
-      }
-      
-      # Add 2gram solution to solutions vector
-      solutions$value[giveNumberOfPossibilities - findMore + i] <- sol
-      solutions$source[giveNumberOfPossibilities - findMore + i] <- "2gramsTable"
-      k <- k + 1
-    }
-  }
-  
-  # Find more solutions in the freqency table if necessairy
-  findMore <- sum(is.na(solutions$value))
-  if(findMore > 0){
-    if(predictPart)
-      solFreq <- inputWord3PartIndices else
-        solFreq <- 1:length(model$wordFreqTable$word)
-      
-    k <- 1
-    for(i in 1:findMore){
-      sol <- solFreq[k]
-      
-      # Check if the found solutions has allready been found in the 3-gram before
-      while((sol %in% solutions$value) || 
-            (sol %in% doNotPredictIndex)){
-        k <- k + 1
-        sol <- solFreq[k]
-        if(is.na(sol)) break
-      }
-      
-      # Add solution to solutions vector
-      solutions$value[giveNumberOfPossibilities - findMore + i] <- sol
-      solutions$source[giveNumberOfPossibilities - findMore + i] <- "wordFreqencyTable"
-      k <- k + 1
-    }
-  }
-  
-  solutions$value <- as.numeric(solutions$value)
-  # Replace indices by words
-  getWord <- function(index){
-    if(is.na(index))
-      return(NA)
-    if(index == 0) return("\n") else
-      return(model$wordFreqTable[index, "word", with = FALSE]$word)
-  }
-  solutions[, value := sapply(solutions$value, function(x) getWord(x))]
-  
-  # Return solutions vector
-  solutions
+  return(list(inputWord1Index = inputWord1Index,
+              inputWord2Index = inputWord2Index,
+              predictPart = predictPart,
+              inputWord3Part = inputWord3Part,
+              inputWord3PartIndices = inputWord3PartIndices,
+              doNotPredictIndex = doNotPredictIndex))
 }
