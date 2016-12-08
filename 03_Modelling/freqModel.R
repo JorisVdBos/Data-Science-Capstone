@@ -19,6 +19,7 @@ createFreqModel <- function(corpus, tdm = NULL, freqencyCutoff = 1, loadingBar =
   wordFreqTable <- wordFreq(tdm)
   wordFreqTable <- wordFreqTable[Encoding(wordFreqTable$word) != "UTF-8"]
   wordFreqTable <- wordFreqTable[order(-freq)]
+  wordFreqTable <- wordFreqTable[freq > freqencyCutoff]
       if(loadingBar)
        setTxtProgressBar(pb, 1/loadingSteps)
   n2grams <- ngramsFromCorpus(corpus, n = 2)

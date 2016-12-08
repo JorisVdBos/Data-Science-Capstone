@@ -32,7 +32,7 @@ downloadFiles()
 Because reading in all the data takes way too long, this function takes a fraction and puts it into a sample folder, sampleTrain. The leftover data is also copied, into two more folders: sampleTest and sampleValidate. These data sets are completely randomly chosen (hence the seed) and the maximum size is the amount of lines of the training fata.
 
 ```r
-usePercentageOfData
+print(usePercentageOfData)
 createSampleDataDir(usePercentageOfData, seed)
 ```
 
@@ -42,6 +42,7 @@ Reading the training sample data into a corpus is done using function "createCor
 corpus <- createCorpus()
 tdm <- TermDocumentMatrix(corpus, control = list(wordLengths=c(0, Inf)))
 ```
+
 
 # Exploratory Analysis
 These functions are found in the folder "02_ExploratoryAnalysis".
@@ -54,16 +55,16 @@ readTextsSample(lines = 2, seed = 104)
 
 ```
 ## $en_US.blogs.txt
-## [1] "As a teenager, Eri develops the callingan internal link to the man-eating beasts plaguing the planet. She finds herself repeatedly drawn beyond the safety borders, driven by rage, hoping to satiate the bloodlust flooding her veins."
-## [2] "Hearts starve as well as bodies:"                                                                                                                                                                                                        
+## [1] "He asked to lick her between her thighs until she cried and begged for him. He wanted to take her to Florida, and New York. Of course, this escalated conversation came toward the updated communications between them, and not at the beginning."
+## [2] "Can you describe Christmas?"                                                                                                                                                                                                                      
 ## 
 ## $en_US.news.txt
-## [1] "The test car never became tiresome in traffic, never jerked and bucked from too-little low-speed power as you engaged the clutch."                                                                                                                                                                                                                                       
-## [2] "Kate might consider giving some advice to her younger sister on media management. While the duchess has generated some of the most positive royal press in years, Pippa Middleton made some unpleasant headlines this month when she was photographed in a car in Paris with a driver who pretended to point a gun at photographers. The gun was later said to be a toy."
+## [1] "\"It's creating such a sense of hope and optimism for all the cystic fibrosis patients because this approach will work,\" said Robert Beall, president and chief executive of the Bethesda, Md.-based Cystic Fibrosis Foundation, which has spent millions funding such research."
+## [2] "Length: Various trails and levels of difficulty."                                                                                                                                                                                                                                 
 ## 
 ## $en_US.twitter.txt
-## [1] "Damn my girl look good with a bowl full of chili"                     
-## [2] "Watching #doomsdaypreppers...they make it seem so sane and logical..."
+## [1] "Blame it on the weed, blame it on the booz!"                                                                                              
+## [2] "Seen tonight:\"Nevando Voy\" from Spain about 4 factory workers; and \"Amor en Fin\" in the days leading up to the 2006 MX prez election."
 ```
 
 The amount of words and chars are counted in this function:
@@ -168,7 +169,6 @@ ggplot(data= n2gramsTable) +
 
 ![](ProjectOverview_files/figure-html/ngram2hist-1.png)<!-- -->
 
-
 As expected, most n-grams are quite rare. The same for the n-grams of length 3:
 
 ```r
@@ -204,6 +204,13 @@ ggplot(data= n3gramsTable) +
 # Modelling
 Modelling functions are found in the folder "03_Modelling".
 
+The bove code worked with 0.5% of the provided data. To be able to work with more data and not wait a long time for the corpus to be collected every time, I have saved the corpus using 5% of the data.
+
+```r
+load("TempData/corpus5perc.RData")
+load("TempData/tdm5perc.RData")
+```
+
 ## Model input
 The model input is passed through the same filter as the corpus that was used to make the model. Here is an example of a conversion:
 
@@ -218,15 +225,16 @@ removePunctuationsExeptions("His last album, \"The Great Escape\", has yet to se
 The model I made, will search the freqency table of the 3-grams and takes the three (by default) options that are most frequent. If less than three options are found, it will look at the 2-grams table. If still no options are found, it will look at the most freqent words. That way, the model will always have a guess, even though it has nothing to go for. I have also included the source of the prediction to be returned.
 
 ```r
-freqModel <- createFreqModel(corpus, tdm, loadingBar = FALSE)
+# freqModel <- createFreqModel(corpus, tdm, loadingBar = FALSE)
+load("TempData/freqModel5perc.RData")
 print(predict(freqModel, "then you "))
 ```
 
 ```
 ##    value       source
-## 1: gotta n3gramsTable
-## 2:   can  2gramsTable
-## 3:  have  2gramsTable
+## 1:   can n3gramsTable
+## 2:  have n3gramsTable
+## 3:  know n3gramsTable
 ```
 
 ```r
@@ -234,10 +242,10 @@ print(predict(freqModel, "sometimes you "))
 ```
 
 ```
-##    value      source
-## 1:   can 2gramsTable
-## 2:  have 2gramsTable
-## 3:   are 2gramsTable
+##    value       source
+## 1:  just n3gramsTable
+## 2:  have n3gramsTable
+## 3:   are n3gramsTable
 ```
 
 ```r
@@ -246,9 +254,9 @@ print(predict(freqModel, "xnjiqqfqsf you "))
 
 ```
 ##    value      source
-## 1:   can 2gramsTable
-## 2:  have 2gramsTable
-## 3:   are 2gramsTable
+## 1:   are 2gramsTable
+## 2:   can 2gramsTable
+## 3:  have 2gramsTable
 ```
 
 ```r
@@ -259,7 +267,7 @@ print(predict(freqModel, "xnjiqqfqsf nqnjndjiqpdns "))
 ##    value            source
 ## 1:   the wordFreqencyTable
 ## 2:    to wordFreqencyTable
-## 3:     a wordFreqencyTable
+## 3:   and wordFreqencyTable
 ```
 
 To save space, the words were stored as an ordered data table. This way, they all have an unique index number, which can be used as quick lookup table for the words. The 2 and 3-grams are also ordered lists with the more prevalent combinations at the top. The downside of this model is that you cannot add new entries to it, because it cannot determine anymore if the new combinations are more prevalent than the allready existing ones in it. This can be fixed to add a new row to all tables with the freqencies but this was not part of the scope (for now).
@@ -270,46 +278,46 @@ freqModel
 
 ```
 ## $wordFreqTable
-##                 word
-##     1:           the
-##     2:             ,
-##     3:            to
-##     4:             a
-##     5:           and
-##    ---              
-## 29744:    zuckerburg
-## 29745:         zulfs
-## 29746:        zusi's
-## 29747: zzzzzzzzzzzzz
-## 29748:            \n
+##          word
+##     1:    the
+##     2:      ,
+##     3:     to
+##     4:    and
+##     5:      a
+##    ---       
+## 48926:   zulu
+## 48927:   zuzu
+## 48928:     zx
+## 48929: zygons
+## 48930:     \n
 ## 
 ## $n2gramsTable
-##        indexWord1 indexWord2
-##     1:          0          6
-##     2:          7          1
-##     3:          8          1
-##     4:          0          1
-##     5:          2          5
-##    ---                      
-## 36547:          5       7057
-## 36548:       1931       3527
-## 36549:       1590       4366
-## 36550:          1       9075
-## 36551:          8      13123
+##         indexWord1 indexWord2
+##      1:          0          0
+##      2:          9          0
+##      3:          0          6
+##      4:          8          1
+##      5:         10          1
+##     ---                      
+## 277700:       1049      28967
+## 277701:       5231      48924
+## 277702:          0      10684
+## 277703:          0      35485
+## 277704:       5806      21959
 ## 
 ## $n3gramsTable
-##        indexWord1 indexWord2 indexWord3
-##     1:          0         85         11
-##     2:          0          6         20
-##     3:          0          6         68
-##     4:          0          6         86
-##     5:          0        170          9
-##    ---                                 
-## 24154:          7          1       1904
-## 24155:         71        355       1905
-## 24156:        400          2       5854
-## 24157:          1       3506       3527
-## 24158:        841       1590       4366
+##         indexWord1 indexWord2 indexWord3
+##      1:          0          0          0
+##      2:          9          9          0
+##      3:          0          0          6
+##      4:         18         18          0
+##      5:          0          0          7
+##     ---                                 
+## 334776:        778          5       3884
+## 334777:          1       4617       3884
+## 334778:         13          1       3884
+## 334779:          0          4      35483
+## 334780:          0          0      10684
 ## 
 ## attr(,"class")
 ## [1] "list"      "FreqModel"
@@ -322,7 +330,7 @@ object.size(freqModel)
 ```
 
 ```
-## 3089520 bytes
+## 16504608 bytes
 ```
 
 ```r
@@ -330,7 +338,7 @@ object.size(freqModel) / 1024^2 # In megabytes
 ```
 
 ```
-## 2.94639587402344 bytes
+## 15.7400207519531 bytes
 ```
 
 Evaluation of the model is done by this function. It will take the data from the testing map, made in the first chapter with the createSampleDataDir function. It will take the fraction you want (or everything) and check word for word if it could have been predicted with the model provided.
@@ -340,12 +348,12 @@ test <- testModel(freqModel, fraction = 0.01, loadingBar = FALSE)
 ```
 
 ```
-## [1] "Total training lines for en_US.blogs.txt was 4496"
-## [1] "Total testing lines for en_US.blogs.txt is 44"
-## [1] "Total training lines for en_US.news.txt was 386"
-## [1] "Total testing lines for en_US.news.txt is 3"
-## [1] "Total training lines for en_US.twitter.txt was 11800"
-## [1] "Total testing lines for en_US.twitter.txt is 118"
+## [1] "Total training lines for en_US.blogs.txt was 449"
+## [1] "Total testing lines for en_US.blogs.txt is 4"
+## [1] "Total training lines for en_US.news.txt was 38"
+## [1] "Total testing lines for en_US.news.txt is 0"
+## [1] "Total training lines for en_US.twitter.txt was 1180"
+## [1] "Total testing lines for en_US.twitter.txt is 11"
 ```
 
 ```r
@@ -354,10 +362,10 @@ test$score
 
 ```
 ##                   Words total Prediction success % successful prediction
-## en_US.blogs.txt          1652                343               0.2076271
-## en_US.news.txt            163                 21               0.1288344
-## en_US.twitter.txt        1485                286               0.1925926
-## Total                    3300                650               0.1969697
+## en_US.blogs.txt           138                 41               0.2971014
+## en_US.news.txt              0                  0                     NaN
+## en_US.twitter.txt         151                 35               0.2317881
+## Total                     289                 76               0.2629758
 ```
 
 ```r
@@ -366,7 +374,7 @@ test$wordAccuracy
 
 ```
 ##       word1      word2      word3
-## 1 0.1178788 0.04818182 0.03090909
+## 1 0.1557093 0.05536332 0.05190311
 ```
 
 So the prediction is about 17%, which is not very impressive.
@@ -379,12 +387,12 @@ test <- testModel(freqModel, fraction = 0.005, loadingBar = FALSE)
 ```
 
 ```
-## [1] "Total training lines for en_US.blogs.txt was 4496"
-## [1] "Total testing lines for en_US.blogs.txt is 22"
-## [1] "Total training lines for en_US.news.txt was 386"
-## [1] "Total testing lines for en_US.news.txt is 1"
-## [1] "Total training lines for en_US.twitter.txt was 11800"
-## [1] "Total testing lines for en_US.twitter.txt is 59"
+## [1] "Total training lines for en_US.blogs.txt was 449"
+## [1] "Total testing lines for en_US.blogs.txt is 2"
+## [1] "Total training lines for en_US.news.txt was 38"
+## [1] "Total testing lines for en_US.news.txt is 0"
+## [1] "Total training lines for en_US.twitter.txt was 1180"
+## [1] "Total testing lines for en_US.twitter.txt is 5"
 ```
 
 ```r
@@ -393,10 +401,10 @@ test$score
 
 ```
 ##                   Words total Prediction success % successful prediction
-## en_US.blogs.txt          1022                264               0.2583170
-## en_US.news.txt             57                 12               0.2105263
-## en_US.twitter.txt         824                184               0.2233010
-## Total                    1903                460               0.2417236
+## en_US.blogs.txt            60                 22               0.3666667
+## en_US.news.txt              0                  0                     NaN
+## en_US.twitter.txt          56                  9               0.1607143
+## Total                     116                 31               0.2672414
 ```
 
 ```r
@@ -404,8 +412,8 @@ test$wordAccuracy
 ```
 
 ```
-##      word1      word2      word3      word4      word5
-## 1 0.112454 0.04308986 0.03205465 0.03415659 0.01996847
+##       word1      word2      word3      word4      word5
+## 1 0.1293103 0.03448276 0.06896552 0.01724138 0.01724138
 ```
 
 ## Improving the model
@@ -414,3 +422,118 @@ The model above has gone through various steps of improving the model. These cha
 * Adding sensitivity to numbers. Instead of dropping numbers altogether, they are converted to a single "#" character, which is - Adding sensitivity to "!" and "?"
 * Dropping all n-grams with freqency 1 from the model makes it a lot smaller in size, and even improves the accuracy a little.
 * Adding a filter to the predictions that allows for filtering to the first word (for example "I love y" will subset the prediction to all words starting with "y")
+
+## Kneser-Ney model
+I made a second model, following the formula's in [this paper](http://u.cs.biu.ac.il/~yogo/courses/mt2013/papers/chen-goodman-99.pdf).
+
+```r
+# KNModel <- createKNModel(corpus, tdm, loadingBar = FALSE)
+load("TempData/KNModel5perc.RData")
+```
+
+```r
+KNModel
+```
+
+```
+## $wordFreqTable
+##          word    freq index         prob
+##     1:     \n 1231002     0 4.669832e-02
+##     2:    the  145964     1 1.029860e-02
+##     3:      ,  132833     2 3.464499e-02
+##     4:     to   95806     3 1.364490e-02
+##     5:    and   79110     4 2.262496e-02
+##    ---                                  
+## 48926: zulily       2 48925 3.329649e-06
+## 48927:   zulu       2 48926 3.329649e-06
+## 48928:   zuzu       2 48927 3.329649e-06
+## 48929:     zx       2 48928 3.329649e-06
+## 48930: zygons       2 48929 3.329649e-06
+## 
+## $n2gramsTable
+##         indexWord1 indexWord2   freq
+##      1:          0          0 334747
+##      2:          9          0  28979
+##      3:          0          6  26490
+##      4:          8          1  12832
+##      5:         10          1  12117
+##     ---                             
+## 277700:       1049      28967      2
+## 277701:       5231      48924      2
+## 277702:          0      10684      2
+## 277703:          0      35485      2
+## 277704:       5806      21959      2
+## 
+## $n3gramsTable
+##         indexWord1 indexWord2 indexWord3   freq
+##      1:          0          0          0 167911
+##      2:          9          9          0  28706
+##      3:          0          0          6  14212
+##      4:         18         18          0  11881
+##      5:          0          0          7   6580
+##     ---                                        
+## 334776:        778          5       3884      2
+## 334777:          1       4617       3884      2
+## 334778:         13          1       3884      2
+## 334779:          0          4      35483      2
+## 334780:          0          0      10684      2
+## 
+## attr(,"class")
+## [1] "list"    "KNModel"
+```
+
+The size of the model:
+
+```r
+object.size(KNModel)
+```
+
+```
+## 19018536 bytes
+```
+
+```r
+object.size(KNModel) / 1024^2 # In megabytes
+```
+
+```
+## 18.1374893188477 bytes
+```
+
+Testing the model:
+
+```r
+test <- testModel(KNModel, fraction = 0.005, loadingBar = FALSE)
+```
+
+```
+## [1] "Total training lines for en_US.blogs.txt was 449"
+## [1] "Total testing lines for en_US.blogs.txt is 2"
+## [1] "Total training lines for en_US.news.txt was 38"
+## [1] "Total testing lines for en_US.news.txt is 0"
+## [1] "Total training lines for en_US.twitter.txt was 1180"
+## [1] "Total testing lines for en_US.twitter.txt is 5"
+```
+
+```r
+test$score
+```
+
+```
+##                   Words total Prediction success % successful prediction
+## en_US.blogs.txt            60                  6              0.10000000
+## en_US.news.txt              0                  0                     NaN
+## en_US.twitter.txt          56                  4              0.07142857
+## Total                     116                 10              0.08620690
+```
+
+```r
+test$wordAccuracy
+```
+
+```
+##        word1      word2 word3      word4      word5
+## 1 0.00862069 0.02586207     0 0.02586207 0.02586207
+```
+
+Though the predicted output is lower, it is said to better if the model is trained with more data. This will be worth testing out:

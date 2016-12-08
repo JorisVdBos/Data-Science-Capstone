@@ -40,7 +40,7 @@ downloadFiles()
 
 Because reading in all the data takes way too long, this function takes a fraction and puts it into a sample folder, sampleTrain. The leftover data is also copied, into two more folders: sampleTest and sampleValidate. These data sets are completely randomly chosen (hence the seed) and the maximum size is the amount of lines of the training fata.
 ```{r createSample, eval = FALSE}
-usePercentageOfData
+print(usePercentageOfData)
 createSampleDataDir(usePercentageOfData, seed)
 ```
 
@@ -49,6 +49,7 @@ Reading the training sample data into a corpus is done using function "createCor
 corpus <- createCorpus()
 tdm <- TermDocumentMatrix(corpus, control = list(wordLengths=c(0, Inf)))
 ```
+
 
 # Exploratory Analysis
 These functions are found in the folder "02_ExploratoryAnalysis".
@@ -114,6 +115,12 @@ ggplot(data= n3gramsTable) +
 # Modelling
 Modelling functions are found in the folder "03_Modelling".
 
+The bove code worked with 0.5% of the provided data. To be able to work with more data and not wait a long time for the corpus to be collected every time, I have saved the corpus using 5% of the data.
+```{r}
+load("TempData/corpus5perc.RData")
+load("TempData/tdm5perc.RData")
+```
+
 ## Model input
 The model input is passed through the same filter as the corpus that was used to make the model. Here is an example of a conversion:
 ```{r exampleString}
@@ -122,7 +129,8 @@ removePunctuationsExeptions("His last album, \"The Great Escape\", has yet to se
 
 The model I made, will search the freqency table of the 3-grams and takes the three (by default) options that are most frequent. If less than three options are found, it will look at the 2-grams table. If still no options are found, it will look at the most freqent words. That way, the model will always have a guess, even though it has nothing to go for. I have also included the source of the prediction to be returned.
 ```{r model1Examples}
-freqModel <- createFreqModel(corpus, tdm, loadingBar = FALSE)
+# freqModel <- createFreqModel(corpus, tdm, loadingBar = FALSE)
+load("TempData/freqModel5perc.RData")
 print(predict(freqModel, "then you "))
 print(predict(freqModel, "sometimes you "))
 print(predict(freqModel, "xnjiqqfqsf you "))
@@ -163,3 +171,28 @@ The model above has gone through various steps of improving the model. These cha
 * Adding sensitivity to numbers. Instead of dropping numbers altogether, they are converted to a single "#" character, which is - Adding sensitivity to "!" and "?"
 * Dropping all n-grams with freqency 1 from the model makes it a lot smaller in size, and even improves the accuracy a little.
 * Adding a filter to the predictions that allows for filtering to the first word (for example "I love y" will subset the prediction to all words starting with "y")
+
+## Kneser-Ney model
+I made a second model, following the formula's in [this paper](http://u.cs.biu.ac.il/~yogo/courses/mt2013/papers/chen-goodman-99.pdf).
+```{r KNmodel}
+# KNModel <- createKNModel(corpus, tdm, loadingBar = FALSE)
+load("TempData/KNModel5perc.RData")
+```
+```{r showModelKN}
+KNModel
+```
+
+The size of the model:
+```{r}
+object.size(KNModel)
+object.size(KNModel) / 1024^2 # In megabytes
+```
+
+Testing the model:
+```{r}
+test <- testModel(KNModel, fraction = 0.005, loadingBar = FALSE)
+test$score
+test$wordAccuracy
+```
+
+Though the predicted output is lower, it is said to better if the model is trained with more data. This will be worth testing out:

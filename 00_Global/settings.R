@@ -5,13 +5,14 @@ seed <- 10
 
 # Reading data
 lang <- "en_US"   # Language
-usePercentageOfData <- 0.05
+usePercentageOfData <- 0.0005
 
 # Modelling
 giveNumberOfPossibilities <- 3
 
 doNotPredict <- c("#", "\n", ",")
 
+kneserNeyAbsDiscount <- 1 # Number between (and including) 0 and 1
 
 
 
