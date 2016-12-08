@@ -14,6 +14,7 @@ createKNModel <- function(corpus, tdm = NULL, freqencyCutoff = 1, loadingBar = T
   
   # Create tables
   wordFreqTable <- wordFreq(tdm)
+  wordFreqTable <- wordFreqTable[Encoding(wordFreqTable$word) != "UTF-8"]
   wordFreqTable <- wordFreqTable[order(-freq)]
   wordFreqTable <- wordFreqTable[freq > freqencyCutoff]
   if(loadingBar)
@@ -132,7 +133,9 @@ predict.KNModel <- function(model, string = NULL){
   part3grams <- sapply(solutions2grams$indexWord2, 
                        function(x) dim(model$n3gramsTable[indexWord2 == inputWord2Index &
                                                             indexWord3 == x])[1])
-  solutions2grams$prob <- part3grams/total3grams
+  if(length(part3grams) != 0)
+    solutions2grams$prob <- part3grams/total3grams else
+      solutions2grams[, prob := freq]
   
   # Calculate probabilities from the 3-grams
   solutions3grams <- model$n3gramsTable[indexWord2 == inputWord2Index & 

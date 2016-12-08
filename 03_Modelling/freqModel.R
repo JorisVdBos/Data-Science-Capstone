@@ -17,6 +17,7 @@ createFreqModel <- function(corpus, tdm = NULL, freqencyCutoff = 1, loadingBar =
   
   # Create tables
   wordFreqTable <- wordFreq(tdm)
+  wordFreqTable <- wordFreqTable[Encoding(wordFreqTable$word) != "UTF-8"]
   wordFreqTable <- wordFreqTable[order(-freq)]
       if(loadingBar)
        setTxtProgressBar(pb, 1/loadingSteps)
