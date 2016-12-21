@@ -40,7 +40,7 @@ Reading the training sample data into a corpus is done using function "createCor
 
 ```r
 corpus <- createCorpus()
-tdm <- TermDocumentMatrix(corpus, control = list(wordLengths=c(0, Inf)))
+tdm <- createTdm()
 ```
 
 
@@ -55,16 +55,16 @@ readTextsSample(lines = 2, seed = 104)
 
 ```
 ## $en_US.blogs.txt
-## [1] "He asked to lick her between her thighs until she cried and begged for him. He wanted to take her to Florida, and New York. Of course, this escalated conversation came toward the updated communications between them, and not at the beginning."
-## [2] "Can you describe Christmas?"                                                                                                                                                                                                                      
+## [1] "As a teenager, Eri develops the callingan internal link to the man-eating beasts plaguing the planet. She finds herself repeatedly drawn beyond the safety borders, driven by rage, hoping to satiate the bloodlust flooding her veins."
+## [2] "Hearts starve as well as bodies:"                                                                                                                                                                                                        
 ## 
 ## $en_US.news.txt
-## [1] "\"It's creating such a sense of hope and optimism for all the cystic fibrosis patients because this approach will work,\" said Robert Beall, president and chief executive of the Bethesda, Md.-based Cystic Fibrosis Foundation, which has spent millions funding such research."
-## [2] "Length: Various trails and levels of difficulty."                                                                                                                                                                                                                                 
+## [1] "The test car never became tiresome in traffic, never jerked and bucked from too-little low-speed power as you engaged the clutch."                                                                                                                                                                                                                                       
+## [2] "Kate might consider giving some advice to her younger sister on media management. While the duchess has generated some of the most positive royal press in years, Pippa Middleton made some unpleasant headlines this month when she was photographed in a car in Paris with a driver who pretended to point a gun at photographers. The gun was later said to be a toy."
 ## 
 ## $en_US.twitter.txt
-## [1] "Blame it on the weed, blame it on the booz!"                                                                                              
-## [2] "Seen tonight:\"Nevando Voy\" from Spain about 4 factory workers; and \"Amor en Fin\" in the days leading up to the 2006 MX prez election."
+## [1] "Damn my girl look good with a bowl full of chili"                     
+## [2] "Watching #doomsdaypreppers...they make it seem so sane and logical..."
 ```
 
 The amount of words and chars are counted in this function:
@@ -94,16 +94,16 @@ wordFreqTable[1:10, ] # The 10 most frequent words
 
 ```
 ##     word  freq
-##  1:  the 14554
-##  2:    , 13346
-##  3:   to  9549
-##  4:    a  7942
-##  5:  and  7784
-##  6:    i  7538
-##  7:   of  6306
-##  8:   in  4985
-##  9:  you  4152
-## 10:   is  4046
+##  1:  the 14577
+##  2:    , 13269
+##  3:   to  9560
+##  4:    a  7974
+##  5:  and  7798
+##  6:    i  7540
+##  7:    #  7001
+##  8:   of  6324
+##  9:    !  5635
+## 10:   in  4998
 ```
 
 Just for the fun of it, let's create a word cloud:
@@ -125,16 +125,16 @@ density[order(-density)][1:10] # The 10 most frequent word frequencies
 
 ```
 ##     freq count     density
-##  1:    1 16624 0.558846270
-##  2:    2  4048 0.136080949
-##  3:    3  2018 0.067838774
-##  4:    4  1203 0.040441053
-##  5:    5   862 0.028977712
-##  6:    6   626 0.021044139
-##  7:    7   477 0.016035230
-##  8:    8   362 0.012169294
-##  9:    9   310 0.010421219
-## 10:   10   251 0.008437826
+##  1:    1 16499 0.556721555
+##  2:    2  4058 0.136928060
+##  3:    3  2014 0.067957889
+##  4:    4  1228 0.041436091
+##  5:    5   858 0.028951275
+##  6:    6   622 0.020987988
+##  7:    7   461 0.015555406
+##  8:    8   377 0.012721015
+##  9:    9   305 0.010291537
+## 10:   10   254 0.008570657
 ```
 
 Creating the table of n-grams of length 2:
@@ -147,17 +147,17 @@ n2gramsTable[order(-density)][1:10] # The 10 most frequent 2-grams
 ```
 
 ```
-##       ngrams freq        prop     density
-##  1:    \n i  2683 0.006984542 0.006984542
-##  2:  of the  1257 0.003272296 0.003272296
-##  3:  in the  1220 0.003175975 0.003175975
-##  4:  \n the  1162 0.003024986 0.003024986
-##  5:   , and  1127 0.002933872 0.002933872
-##  6:   , but   731 0.001902982 0.001902982
-##  7:     , i   696 0.001811868 0.001811868
-##  8: for the   693 0.001804058 0.001804058
-##  9:  to the   692 0.001801455 0.001801455
-## 10:  on the   608 0.001582781 0.001582781
+##      ngrams  freq        prop     density
+##  1:  \n \n  33362 0.076822113 0.076822113
+##  2:   ! \n   2875 0.006620214 0.006620214
+##  3:   \n i   2695 0.006205731 0.006205731
+##  4: of the   1258 0.002896775 0.002896775
+##  5:   ? \n   1234 0.002841511 0.002841511
+##  6: in the   1226 0.002823089 0.002823089
+##  7: \n the   1161 0.002673415 0.002673415
+##  8:  , and   1121 0.002581308 0.002581308
+##  9:   \n #    934 0.002150706 0.002150706
+## 10:   # \n    891 0.002051691 0.002051691
 ```
 
 A histogram of the freqency of the ngrams of length 2:
@@ -179,17 +179,17 @@ n3gramsTable[order(-density)][1:10] # The 10 most frequent 3-grams
 ```
 
 ```
-##              ngrams freq         prop      density
-##  1:  \n thanks for   162 0.0004217289 0.0004217289
-##  2:      \n i have   146 0.0003800767 0.0003800767
-##  3:      \n i love   131 0.0003410277 0.0003410277
-##  4:        \n i am   128 0.0003332179 0.0003332179
-##  5:   \n thank you   124 0.0003228049 0.0003228049
-##  6: thanks for the   121 0.0003149951 0.0003149951
-##  7:      \n if you   117 0.0003045820 0.0003045820
-##  8:       \n i was   116 0.0003019787 0.0003019787
-##  9:     \n i think   115 0.0002993755 0.0002993755
-## 10:      \n it was   115 0.0002993755 0.0002993755
+##            ngrams  freq         prop      density
+##  1:     \n \n \n  16681 0.0384111450 0.0384111450
+##  2:      ! \n \n   2846 0.0065534512 0.0065534512
+##  3:      \n \n i   1426 0.0032836336 0.0032836336
+##  4:      ? \n \n   1215 0.0027977664 0.0027977664
+##  5:      \n \n #    694 0.0015980657 0.0015980657
+##  6:    \n \n the    603 0.0013885211 0.0013885211
+##  7:      # \n \n    557 0.0012825974 0.0012825974
+##  8:        # u #    363 0.0008358759 0.0008358759
+##  9: \n \n thanks    261 0.0006010017 0.0006010017
+## 10:    \n \n you    234 0.0005388291 0.0005388291
 ```
 
 A histogram of the freqency of the ngrams of length 3:
@@ -344,54 +344,15 @@ object.size(freqModel) / 1024^2 # In megabytes
 Evaluation of the model is done by this function. It will take the data from the testing map, made in the first chapter with the createSampleDataDir function. It will take the fraction you want (or everything) and check word for word if it could have been predicted with the model provided.
 
 ```r
-test <- testModel(freqModel, fraction = 0.01, loadingBar = FALSE)
+test <- testModel(freqModel, fraction = 0.0005, loadingBar = FALSE)
 ```
 
 ```
-## [1] "Total training lines for en_US.blogs.txt was 449"
-## [1] "Total testing lines for en_US.blogs.txt is 4"
-## [1] "Total training lines for en_US.news.txt was 38"
-## [1] "Total testing lines for en_US.news.txt is 0"
-## [1] "Total training lines for en_US.twitter.txt was 1180"
-## [1] "Total testing lines for en_US.twitter.txt is 11"
-```
-
-```r
-test$score
-```
-
-```
-##                   Words total Prediction success % successful prediction
-## en_US.blogs.txt           138                 41               0.2971014
-## en_US.news.txt              0                  0                     NaN
-## en_US.twitter.txt         151                 35               0.2317881
-## Total                     289                 76               0.2629758
-```
-
-```r
-test$wordAccuracy
-```
-
-```
-##       word1      word2      word3
-## 1 0.1557093 0.05536332 0.05190311
-```
-
-So the prediction is about 17%, which is not very impressive.
-
-The prediction succes can be higher by letting the prediction model give more options. If we change the model to give 5 possibilities instead of only 3, the succesrate goes up:
-
-```r
-giveNumberOfPossibilities <- 5
-test <- testModel(freqModel, fraction = 0.005, loadingBar = FALSE)
-```
-
-```
-## [1] "Total training lines for en_US.blogs.txt was 449"
+## [1] "Total training lines for en_US.blogs.txt was 4496"
 ## [1] "Total testing lines for en_US.blogs.txt is 2"
-## [1] "Total training lines for en_US.news.txt was 38"
+## [1] "Total training lines for en_US.news.txt was 386"
 ## [1] "Total testing lines for en_US.news.txt is 0"
-## [1] "Total training lines for en_US.twitter.txt was 1180"
+## [1] "Total training lines for en_US.twitter.txt was 11800"
 ## [1] "Total testing lines for en_US.twitter.txt is 5"
 ```
 
@@ -401,10 +362,49 @@ test$score
 
 ```
 ##                   Words total Prediction success % successful prediction
-## en_US.blogs.txt            60                 22               0.3666667
+## en_US.blogs.txt            95                 27               0.2842105
 ## en_US.news.txt              0                  0                     NaN
-## en_US.twitter.txt          56                  9               0.1607143
-## Total                     116                 31               0.2672414
+## en_US.twitter.txt          67                 12               0.1791045
+## Total                     162                 39               0.2407407
+```
+
+```r
+test$wordAccuracy
+```
+
+```
+##       word1      word2      word3
+## 1 0.1234568 0.06790123 0.04938272
+```
+
+So the prediction is about 17%, which is not very impressive.
+
+The prediction succes can be higher by letting the prediction model give more options. If we change the model to give 5 possibilities instead of only 3, the succesrate goes up:
+
+```r
+giveNumberOfPossibilities <- 5
+test <- testModel(freqModel, fraction = 0.0005, loadingBar = FALSE)
+```
+
+```
+## [1] "Total training lines for en_US.blogs.txt was 4496"
+## [1] "Total testing lines for en_US.blogs.txt is 2"
+## [1] "Total training lines for en_US.news.txt was 386"
+## [1] "Total testing lines for en_US.news.txt is 0"
+## [1] "Total training lines for en_US.twitter.txt was 11800"
+## [1] "Total testing lines for en_US.twitter.txt is 5"
+```
+
+```r
+test$score
+```
+
+```
+##                   Words total Prediction success % successful prediction
+## en_US.blogs.txt            95                 29               0.3052632
+## en_US.news.txt              0                  0                     NaN
+## en_US.twitter.txt          67                 18               0.2686567
+## Total                     162                 47               0.2901235
 ```
 
 ```r
@@ -413,7 +413,7 @@ test$wordAccuracy
 
 ```
 ##       word1      word2      word3      word4      word5
-## 1 0.1293103 0.03448276 0.06896552 0.01724138 0.01724138
+## 1 0.1234568 0.06790123 0.04938272 0.02469136 0.02469136
 ```
 
 ## Improving the model
@@ -438,48 +438,93 @@ KNModel
 ```
 ## $wordFreqTable
 ##          word    freq index         prob
-##     1:     \n 1231002     0 4.669832e-02
-##     2:    the  145964     1 1.029860e-02
-##     3:      ,  132833     2 3.464499e-02
-##     4:     to   95806     3 1.364490e-02
-##     5:    and   79110     4 2.262496e-02
+##     1:     \n 1232520     0 4.683839e-02
+##     2:    the  145992     1 1.037530e-02
+##     3:      ,  132833     2 3.458544e-02
+##     4:     to   95823     3 1.362215e-02
+##     5:    and   79166     4 2.264819e-02
 ##    ---                                  
-## 48926: zulily       2 48925 3.329649e-06
-## 48927:   zulu       2 48926 3.329649e-06
-## 48928:   zuzu       2 48927 3.329649e-06
-## 48929:     zx       2 48928 3.329649e-06
-## 48930: zygons       2 48929 3.329649e-06
+## 48978: zulily       2 48977 3.323286e-06
+## 48979:   zulu       2 48978 3.323286e-06
+## 48980:   zuzu       2 48979 3.323286e-06
+## 48981:     zx       2 48980 3.323286e-06
+## 48982: zygons       2 48981 3.323286e-06
 ## 
 ## $n2gramsTable
 ##         indexWord1 indexWord2   freq
-##      1:          0          0 334747
-##      2:          9          0  28979
-##      3:          0          6  26490
-##      4:          8          1  12832
-##      5:         10          1  12117
+##      1:          0          0 333664
+##      2:          9          0  28991
+##      3:          0          6  26593
+##      4:          8          1  12833
+##      5:         10          1  12119
 ##     ---                             
-## 277700:       1049      28967      2
-## 277701:       5231      48924      2
-## 277702:          0      10684      2
-## 277703:          0      35485      2
-## 277704:       5806      21959      2
+## 278251:       1046      28991      2
+## 278252:       5233      48976      2
+## 278253:          0      10694      2
+## 278254:          0      35505      2
+## 278255:       5695      21976      2
 ## 
 ## $n3gramsTable
 ##         indexWord1 indexWord2 indexWord3   freq
-##      1:          0          0          0 167911
-##      2:          9          9          0  28706
-##      3:          0          0          6  14212
-##      4:         18         18          0  11881
+##      1:          0          0          0 166836
+##      2:          9          9          0  28709
+##      3:          0          0          6  14217
+##      4:         18         18          0  11885
 ##      5:          0          0          7   6580
 ##     ---                                        
-## 334776:        778          5       3884      2
-## 334777:          1       4617       3884      2
-## 334778:         13          1       3884      2
-## 334779:          0          4      35483      2
-## 334780:          0          0      10684      2
+## 335730:        778          5       3885      2
+## 335731:          1       4620       3885      2
+## 335732:         13          1       3885      2
+## 335733:          0          4      35503      2
+## 335734:          0          0      10694      2
 ## 
 ## attr(,"class")
 ## [1] "list"    "KNModel"
+```
+
+```r
+giveNumberOfPossibilities <- 3
+print(predict(freqModel, "then you "))
+```
+
+```
+##    value       source
+## 1:   can n3gramsTable
+## 2:  have n3gramsTable
+## 3:  know n3gramsTable
+```
+
+```r
+print(predict(freqModel, "sometimes you "))
+```
+
+```
+##    value       source
+## 1:  just n3gramsTable
+## 2:  have n3gramsTable
+## 3:   are n3gramsTable
+```
+
+```r
+print(predict(freqModel, "xnjiqqfqsf you "))
+```
+
+```
+##    value      source
+## 1:   are 2gramsTable
+## 2:   can 2gramsTable
+## 3:  have 2gramsTable
+```
+
+```r
+print(predict(freqModel, "xnjiqqfqsf nqnjndjiqpdns "))
+```
+
+```
+##    value            source
+## 1:   the wordFreqencyTable
+## 2:    to wordFreqencyTable
+## 3:   and wordFreqencyTable
 ```
 
 The size of the model:
@@ -489,7 +534,7 @@ object.size(KNModel)
 ```
 
 ```
-## 19018536 bytes
+## 19060608 bytes
 ```
 
 ```r
@@ -497,21 +542,21 @@ object.size(KNModel) / 1024^2 # In megabytes
 ```
 
 ```
-## 18.1374893188477 bytes
+## 18.1776123046875 bytes
 ```
 
 Testing the model:
 
 ```r
-test <- testModel(KNModel, fraction = 0.005, loadingBar = FALSE)
+test <- testModel(KNModel, fraction = 0.0005, loadingBar = FALSE)
 ```
 
 ```
-## [1] "Total training lines for en_US.blogs.txt was 449"
+## [1] "Total training lines for en_US.blogs.txt was 4496"
 ## [1] "Total testing lines for en_US.blogs.txt is 2"
-## [1] "Total training lines for en_US.news.txt was 38"
+## [1] "Total training lines for en_US.news.txt was 386"
 ## [1] "Total testing lines for en_US.news.txt is 0"
-## [1] "Total training lines for en_US.twitter.txt was 1180"
+## [1] "Total training lines for en_US.twitter.txt was 11800"
 ## [1] "Total testing lines for en_US.twitter.txt is 5"
 ```
 
@@ -521,10 +566,10 @@ test$score
 
 ```
 ##                   Words total Prediction success % successful prediction
-## en_US.blogs.txt            60                  6              0.10000000
+## en_US.blogs.txt            95                  0              0.00000000
 ## en_US.news.txt              0                  0                     NaN
-## en_US.twitter.txt          56                  4              0.07142857
-## Total                     116                 10              0.08620690
+## en_US.twitter.txt          67                  5              0.07462687
+## Total                     162                  5              0.03086420
 ```
 
 ```r
@@ -532,8 +577,44 @@ test$wordAccuracy
 ```
 
 ```
-##        word1      word2 word3      word4      word5
-## 1 0.00862069 0.02586207     0 0.02586207 0.02586207
+##        word1      word2      word3
+## 1 0.00617284 0.01234568 0.01234568
+```
+
+
+```r
+giveNumberOfPossibilities <- 5
+test <- testModel(KNModel, fraction = 0.0005, loadingBar = FALSE)
+```
+
+```
+## [1] "Total training lines for en_US.blogs.txt was 4496"
+## [1] "Total testing lines for en_US.blogs.txt is 2"
+## [1] "Total training lines for en_US.news.txt was 386"
+## [1] "Total testing lines for en_US.news.txt is 0"
+## [1] "Total training lines for en_US.twitter.txt was 11800"
+## [1] "Total testing lines for en_US.twitter.txt is 5"
+```
+
+```r
+test$score
+```
+
+```
+##                   Words total Prediction success % successful prediction
+## en_US.blogs.txt            95                  2              0.02105263
+## en_US.news.txt              0                  0                     NaN
+## en_US.twitter.txt          67                  6              0.08955224
+## Total                     162                  8              0.04938272
+```
+
+```r
+test$wordAccuracy
+```
+
+```
+##        word1      word2      word3      word4 word5
+## 1 0.00617284 0.00617284 0.01234568 0.02469136     0
 ```
 
 Though the predicted output is lower, it is said to better if the model is trained with more data. This will be worth testing out:

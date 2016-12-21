@@ -16,9 +16,7 @@ downloadFiles <- function(){
 createSampleDataDir <- function(sampleSize = 1, seed = 1){
   set.seed(seed)
   
-  if(file.exists(trainFolder)) rm(trainFolder)
-  if(file.exists(testFolder)) rm(testFolder)
-  if(file.exists(validateFolder)) rm(validateFolder)
+  if(file.exists(trainFolder)) return(paste(trainFolder, "exists"))
   percentageMap <- paste0(paste0(tempDataFolder, "/percentage", usePercentageOfData*100))
   if(!file.exists(percentageMap)) dir.create(percentageMap)
   
@@ -187,12 +185,11 @@ createTdm <- function(corpus = NULL){
     print(paste("Loading tdm object from", paste0(folder, "/tdm.RData")))
     load(paste0(folder, "/tdm.RData"))
     
-    save(tdm, file = paste0(folder, "/tdm.RData"))
     return(tdm)
   }
     
   if(is.null(corpus))
-    corpus <- createCorpus()
+    corpus <- capture.output(createCorpus())
   tdm <- TermDocumentMatrix(corpus, control = list(wordLengths=c(0, Inf)))
   
   save(tdm, file = paste0(folder, "/tdm.RData"))

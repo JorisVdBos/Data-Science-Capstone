@@ -138,19 +138,19 @@ print(predict(freqModel, "xnjiqqfqsf nqnjndjiqpdns "))
 ```
 
 To save space, the words were stored as an ordered data table. This way, they all have an unique index number, which can be used as quick lookup table for the words. The 2 and 3-grams are also ordered lists with the more prevalent combinations at the top. The downside of this model is that you cannot add new entries to it, because it cannot determine anymore if the new combinations are more prevalent than the allready existing ones in it. This can be fixed to add a new row to all tables with the freqencies but this was not part of the scope (for now).
-```{r showModel}
+```{r showFreqmodel}
 freqModel
 ```
 
 The size of the model:
-```{r}
+```{r testSizeFreqmodel}
 object.size(freqModel)
 object.size(freqModel) / 1024^2 # In megabytes
 ```
 
 Evaluation of the model is done by this function. It will take the data from the testing map, made in the first chapter with the createSampleDataDir function. It will take the fraction you want (or everything) and check word for word if it could have been predicted with the model provided.
-```{r testModel1}
-test <- testModel(freqModel, fraction = 0.01, loadingBar = FALSE)
+```{r testperfFreqmodel1}
+test <- testModel(freqModel, fraction = 0.0005, loadingBar = FALSE)
 test$score
 test$wordAccuracy
 ```
@@ -158,9 +158,9 @@ test$wordAccuracy
 So the prediction is about 17%, which is not very impressive.
 
 The prediction succes can be higher by letting the prediction model give more options. If we change the model to give 5 possibilities instead of only 3, the succesrate goes up:
-```{r testModel2}
+```{r testperfFreqmodel2}
 giveNumberOfPossibilities <- 5
-test <- testModel(freqModel, fraction = 0.005, loadingBar = FALSE)
+test <- testModel(freqModel, fraction = 0.0005, loadingBar = FALSE)
 test$score
 test$wordAccuracy
 ```
@@ -180,17 +180,29 @@ load("TempData/KNModel5perc.RData")
 ```
 ```{r showModelKN}
 KNModel
+giveNumberOfPossibilities <- 3
+print(predict(freqModel, "then you "))
+print(predict(freqModel, "sometimes you "))
+print(predict(freqModel, "xnjiqqfqsf you "))
+print(predict(freqModel, "xnjiqqfqsf nqnjndjiqpdns "))
 ```
 
 The size of the model:
-```{r}
+```{r testSizeKNM}
 object.size(KNModel)
 object.size(KNModel) / 1024^2 # In megabytes
 ```
 
 Testing the model:
-```{r}
-test <- testModel(KNModel, fraction = 0.005, loadingBar = FALSE)
+```{r testPerfKNModel1}
+test <- testModel(KNModel, fraction = 0.0005, loadingBar = FALSE)
+test$score
+test$wordAccuracy
+```
+
+```{r testPerfKNModel2}
+giveNumberOfPossibilities <- 5
+test <- testModel(KNModel, fraction = 0.0005, loadingBar = FALSE)
 test$score
 test$wordAccuracy
 ```
