@@ -73,10 +73,13 @@ predictionInput <- function(model, string){
   word2 <- modelInput(string)$word2
   
   # Finding input word indices
-  if(word1 == "\n") inputWord1Index <- 0 else
+  if(word1 == "\n") inputWord1Index <- 0 else {
     inputWord1Index <- which(model$wordFreqTable$word == word1)
-  if(length(word2) == 0 || word2 == "\n") inputWord2Index <- 0 else
+  }
+  if(length(word2) == 0 || word2 == "\n") inputWord2Index <- 0 else {
     inputWord2Index <- which(model$wordFreqTable$word == word2)
+    
+  }
   
   return(list(inputWord1Index = inputWord1Index,
               inputWord2Index = inputWord2Index,

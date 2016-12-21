@@ -134,7 +134,6 @@ predict.FreqModel <- function(model, string = NULL){
 
 # Prediction function KNModel
 predict.KNModel <- function(model, string = NULL){
-  
   input <- predictionInput(model, string)
   
   inputWord1Index <- input$inputWord1Index
@@ -144,32 +143,37 @@ predict.KNModel <- function(model, string = NULL){
   inputWord3PartIndices <- input$inputWord3PartIndices
   doNotPredictIndex <- input$doNotPredictIndex
   
+  
   # Calculate probabilities from the 2-grams
   solutions2grams <- model$n2gramsTable[indexWord1 == inputWord2Index]
   total3grams <- dim(model$n3gramsTable[indexWord2 == inputWord2Index])[1]
-  part3grams <- sapply(solutions2grams$indexWord2, 
-                       function(x) dim(model$n3gramsTable[indexWord2 == inputWord2Index &
-                                                            indexWord3 == x])[1])
+  
+  temp <- model$n3gramsTable[indexWord2 == inputWord2Index]
+  part3grams <- sapply(solutions2grams$indexWord2,
+                       function(x) dim(temp[indexWord3 == x])[1])
+  
   if(length(part3grams) != 0)
     solutions2grams$prob <- part3grams/total3grams else
       solutions2grams[, prob := freq]
   
+  
   # Calculate probabilities from the 3-grams
+  kneserNeyAbsDiscount <- dim(model$wordFreqTable)[1]/(dim(model$wordFreqTable)[1] +
+                                                         2*dim(model$n2gramsTable)[1])
   solutions3grams <- model$n3gramsTable[indexWord2 == inputWord2Index & 
                                           indexWord1 == inputWord1Index]
-  matched3gramsCount <- sum(model$n3gramsTable[indexWord2 == inputWord2Index &
-                                                 indexWord1 == inputWord1Index]$freq)
-  count2graminput <- max(sum(model$n3gramsTable[indexWord1 == inputWord1Index & 
-                                                  indexWord2 == inputWord2Index]$freq) - kneserNeyAbsDiscount,
-                         0)
-  total3gramsInput <- dim(model$n3gramsTable[indexWord1 == inputWord1Index &
-                                               indexWord2 == inputWord2Index])[1]
+  solutions3grams[, term1 := max(freq - kneserNeyAbsDiscount,
+                                 0), by = "indexWord3"]
+  total3gramsInput <- sum(solutions3grams$freq)
+  solutions3grams$term1 <- solutions3grams$term1 / total3gramsInput
   
-  prob2gram <- solutions2grams[indexWord2 %in% solutions3grams$indexWord3]$prob
+  solutions3grams[, term2 := kneserNeyAbsDiscount*
+                    sum(model$n3gramsTable[indexWord2 == inputWord2Index &
+                                             indexWord1 == inputWord1Index]$freq)/
+                    total3gramsInput]
+  solutions3grams[, term2 := term2*solutions2grams[solutions2grams$indexWord2 %in% indexWord3]$prob, by = "indexWord3"]
   
-  solutions3grams$prob <- (count2graminput/matched3gramsCount) + 
-    (kneserNeyAbsDiscount/matched3gramsCount)*total3gramsInput*prob2gram
-  
+  solutions3grams[, prob := term1 + term2, by = "indexWord3"]
   
   # Get solutions from 1-grams
   solutionsFreq <- model$wordFreqTable[order(-freq)][1:(3*giveNumberOfPossibilities)]
@@ -183,11 +187,16 @@ predict.KNModel <- function(model, string = NULL){
   names(solutionsFreq) <- c("sol", "prob")
   
   solution <- solutions3grams
-  solution <- rbind(solution, 
+  solution <- rbind(solution,
                     solutions2grams[!(sol %in% solution$sol)])
   solution <- rbind(solution, 
                     solutionsFreq[!(sol %in% solution$sol)])
   solution <- solution[!(sol %in% doNotPredictIndex)]
+  # If a partial solution was given, filter
+  if(predictPart) {
+    solution <- solution[sol %in% inputWord3PartIndices]
+  }
+  solution <- solution[prob > 0]
   solution <- solution[order(-prob)][1:giveNumberOfPossibilities]
   names(solution) <- c("value", "prob")
   
