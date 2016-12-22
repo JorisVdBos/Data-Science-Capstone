@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Coursera Data Science Capstone</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Coursera Data Science Capstone">
+  <meta name="author" content="Joris Van den Bossche">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  <link rel=stylesheet href="./assets/css/ribbons.css"></link>
+
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>Coursera Data Science Capstone</h1>
+    <h2>Final project Swiftkey</h2>
+    <p>Joris Van den Bossche<br/>Data Scientist @ Infofarm, Belgium</p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>Overview</h2>
+  </hgroup>
+  <article data-timings="">
+    <ol>
+<li>Project overview</li>
+<li>The Data</li>
+<li>Models</li>
+<li>Shiny</li>
+</ol>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Project overview</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Goal of the project:</p>
+
+<ul>
+<li>Creating a word predictor: Given two words, what would be the third word?</li>
+<li>Demonstrating skills necessary for Data Scientist</li>
+<li>Creating a shiny application that deploys the model(s)</li>
+</ul>
+
+<p>The projects supository can be found <a href="https://github.com/JorisVdBos/Data-Science-Capstone">here on github</a>. I especially focused on:</p>
+
+<ul>
+<li>Structuring the project into maps: 
+
+<ul>
+<li>Global, Load, ExploratoryAnalysis, Modelling, Analysis, ShinyApp, Presentation</li>
+</ul></li>
+<li>Readable code with sufficient comments</li>
+<li>Object oriented (The models are structured as S3 class objects)</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>The data</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>A very large corpus of blog posts, news articles and tweets was provided. Only 5% of the available data was used to make the final models.</p>
+
+<pre><code>##                File   Lines    Words Characters Longest Line: Words Longest Line: Characters
+## 1   en_US.blogs.txt  899288 37334131  208361438                6630                    40835
+## 2    en_US.news.txt   77259  2643969   15683765                1031                     5760
+## 3 en_US.twitter.txt 2360148 30373543  162384825                  47                      213
+</code></pre>
+
+<p>\begin{center}
+The top words:
+<img src="assets/fig/unnamed-chunk-1-1.png" alt="plot of chunk unnamed-chunk-1">
+\end{center}</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Model 1: Freqency count</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Say a person types &quot;I want &quot; into their phone. This first model will simply count all the occurences of &quot;I want &quot; in the data and returns the words that came after those two words, the most frequent ones on top.</p>
+
+<p>If the model fails to find enough words, it will continue with finding &quot;want &quot; and what comes after that. If it fails to find anything there, which is possible for very uncommon words, it will give the most freqent words.</p>
+
+<p>This method is called the 3-grams backoff model. An example of the output typing &quot;I love &quot;:</p>
+
+<pre><code>##    value       source
+## 1:   you n3gramsTable
+## 2:   the n3gramsTable
+## 3:    it n3gramsTable
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Model 2: Kneser-Ney</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>This model, based on a technique first described by Kneser &amp; Ney, is a bit more tricky. Instead of only using the freqencies of the 3 words, it will also look back at the 2 and one freqencies of the word.</p>
+
+<p>That way, it takes into account that, for example, the word &quot;Francisco&quot; only comes after the word &quot;San&quot;. So, when dealing with word freqencies, &quot;Francisco&quot; will have a very low probability while it will be high after word &quot;San&quot;.</p>
+
+<p>The algorithms that describe the can be found <a href="http://u.cs.biu.ac.il/%7Eyogo/courses/mt2013/papers/chen-goodman-99.pdf">here</a>. More info about the models performances can be found <a href="http://rpubs.com/JorisVdBos/228218">here</a>. An example of outputting the words &quot;Going to San &quot;</p>
+
+<pre><code>##        value      prob     source
+## 1: francisco 0.4703674 3gramsProb
+## 2:     diego 0.4164739 3gramsProb
+## 3:   antonio 0.1142890 3gramsProb
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Shiny app</h2>
+  </hgroup>
+  <article data-timings="">
+    <iframe src="https://jorisvdbos.shinyapps.io/DataScienceTrackFinalProject/" style="border: none; width: 1000px; height: 500px"></iframe>
+
+<p>The full shiny app can be found <a href="https://jorisvdbos.shinyapps.io/DataScienceTrackFinalProject/">here</a>.</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='Overview'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='Project overview'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='The data'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='Model 1: Freqency count'>
+         4
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=5 title='Model 2: Kneser-Ney'>
+         5
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=6 title='Shiny app'>
+         6
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  
+  <!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>
