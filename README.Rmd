@@ -16,3 +16,6 @@ The contents of the in this supository are ordered in these maps:
 - 06 Presentation: Finally, a presenation was made about all the steps taken towards the final model
 
 Thanks for reading! - Joris Van den Bossche
+
+# Link to the application
+[Click here to see the application!](https://jorisvdbos.shinyapps.io/DataScienceTrackFinalProject/)
